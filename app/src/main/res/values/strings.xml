@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Dokey</string>
+    <string name="ime_name">Dokey – Bàn phím tiếng Việt</string>
+    <string name="subtype_vi">Tiếng Việt</string>
+</resources>

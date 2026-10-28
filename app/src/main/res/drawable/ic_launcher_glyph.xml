@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dokey mark: a bold "Đ" on a 108x108 canvas (adaptive-icon safe zone). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M36,32 h14 a22,22 0 0 1 0,44 h-14 z M44,40 v28 h6 a14,14 0 0 0 0,-28 z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,51 h18 v6 h-18 z" />
+    <path
+        android:fillColor="#FFD166"
+        android:pathData="M70,30 a5,5 0 1 1 0.01,0 z" />
+</vector>

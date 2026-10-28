@@ -1,0 +1,348 @@
+package com.dhtoan.dokey.ime
+
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
+import android.inputmethodservice.InputMethodService
+import android.media.AudioManager
+import android.os.Build
+import android.os.SystemClock
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import android.text.InputType
+import android.view.KeyEvent
+import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
+import android.view.inputmethod.InputMethodManager
+import com.dhtoan.dokey.DokeySettings
+import com.dhtoan.dokey.engine.TypingMethod
+import com.dhtoan.dokey.engine.VietEngine
+import com.dhtoan.dokey.settings.SettingsActivity
+
+class DokeyIme : InputMethodService(), KeyboardView.Listener {
+
+    private lateinit var settings: DokeySettings
+    private val engine = VietEngine()
+    private var view: KeyboardView? = null
+
+    private var layoutId = "alpha"
+    private var shift = Shift.OFF
+    private var lastShiftTap = 0L
+    /** Fields where Vietnamese transforms would get in the way (passwords, e-mail, URLs, numbers). */
+    private var plainField = false
+    private var lastWasSpace = false
+
+    private val prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ -> applySettings() }
+
+    private val vibrator: Vibrator? by lazy {
+        if (Build.VERSION.SDK_INT >= 31) {
+            (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager)?.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+        }
+    }
+    private val audio: AudioManager? by lazy { getSystemService(Context.AUDIO_SERVICE) as? AudioManager }
+
+    override fun onCreate() {
+        super.onCreate()
+        settings = DokeySettings(this)
+        settings.prefs.registerOnSharedPreferenceChangeListener(prefsListener)
+    }
+
+    override fun onDestroy() {
+        settings.prefs.unregisterOnSharedPreferenceChangeListener(prefsListener)
+        super.onDestroy()
+    }
+
+    override fun onCreateInputView(): View {
+        val v = KeyboardView(this, this)
+        view = v
+        applySettings()
+        return v
+    }
+
+    override fun onStartInputView(info: EditorInfo, restarting: Boolean) {
+        super.onStartInputView(info, restarting)
+        engine.reset()
+        lastWasSpace = false
+        val cls = info.inputType and InputType.TYPE_MASK_CLASS
+        val variation = info.inputType and InputType.TYPE_MASK_VARIATION
+        plainField = when (cls) {
+            InputType.TYPE_CLASS_NUMBER, InputType.TYPE_CLASS_PHONE, InputType.TYPE_CLASS_DATETIME -> true
+            InputType.TYPE_CLASS_TEXT -> variation in PLAIN_TEXT_VARIATIONS
+            else -> false
+        }
+        layoutId = if (cls == InputType.TYPE_CLASS_NUMBER || cls == InputType.TYPE_CLASS_PHONE ||
+            cls == InputType.TYPE_CLASS_DATETIME
+        ) "numpad" else "alpha"
+        shift = Shift.OFF
+        updateAutoShift()
+        applySettings()
+    }
+
+    override fun onFinishInputView(finishingInput: Boolean) {
+        currentInputConnection?.let { commitWord(it) }
+        super.onFinishInputView(finishingInput)
+    }
+
+    override fun onFinishInput() {
+        engine.reset()
+        super.onFinishInput()
+    }
+
+    override fun onUpdateSelection(
+        oldSelStart: Int, oldSelEnd: Int, newSelStart: Int, newSelEnd: Int,
+        candidatesStart: Int, candidatesEnd: Int,
+    ) {
+        super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd)
+        // The cursor moved away from the word being typed (tap elsewhere, app changed the text).
+        if (!engine.isEmpty && (newSelStart != candidatesEnd || newSelEnd != candidatesEnd)) {
+            engine.reset()
+            currentInputConnection?.finishComposingText()
+        }
+    }
+
+    /** Pushes preferences and the current state into the engine and the view. */
+    private fun applySettings() {
+        engine.method = settings.method
+        engine.modernTone = settings.modernTone
+        engine.spellCheck = settings.spellCheck
+        val v = view ?: return
+        val layout = when (layoutId) {
+            "symbols" -> Layouts.SYMBOLS
+            "more_symbols" -> Layouts.MORE_SYMBOLS
+            "numpad" -> Layouts.NUMPAD
+            else -> Layouts.alpha(settings.numberRow)
+        }
+        v.state = KeyboardState(
+            layout = layout,
+            shift = shift,
+            vietnamese = settings.vietnamese,
+            methodLabel = if (settings.method == TypingMethod.VNI) "VNI" else "Telex",
+            enter = enterKind(),
+            theme = Themes.resolve(this, settings.theme),
+            keyHeightDp = when (settings.keyHeight) {
+                "small" -> 46f
+                "large" -> 58f
+                else -> 52f
+            },
+            borders = settings.keyBorders,
+            preview = settings.keyPreview,
+            oneHand = settings.oneHand,
+        )
+    }
+
+    private fun refreshView() = applySettings()
+
+    private fun enterKind(): EnterKind {
+        val info = currentInputEditorInfo ?: return EnterKind.NEWLINE
+        if ((info.imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0) return EnterKind.NEWLINE
+        return when (info.imeOptions and EditorInfo.IME_MASK_ACTION) {
+            EditorInfo.IME_ACTION_SEARCH -> EnterKind.SEARCH
+            EditorInfo.IME_ACTION_SEND -> EnterKind.SEND
+            EditorInfo.IME_ACTION_GO -> EnterKind.GO
+            EditorInfo.IME_ACTION_NEXT -> EnterKind.NEXT
+            EditorInfo.IME_ACTION_DONE -> EnterKind.DONE
+            else -> EnterKind.NEWLINE
+        }
+    }
+
+    private val useEngine get() = settings.vietnamese && !plainField
+
+    // ---- KeyboardView.Listener ----
+
+    override fun onPress(key: Key) {
+        if (settings.vibrate) {
+            val ms = settings.vibrateMs.toLong()
+            val vib = vibrator
+            if (vib != null) {
+                if (Build.VERSION.SDK_INT >= 26) {
+                    vib.vibrate(VibrationEffect.createOneShot(ms, VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    @Suppress("DEPRECATION")
+                    vib.vibrate(ms)
+                }
+            }
+        }
+        if (settings.sound) {
+            val fx = when (key.code) {
+                Codes.DELETE -> AudioManager.FX_KEYPRESS_DELETE
+                Codes.SPACE -> AudioManager.FX_KEYPRESS_SPACEBAR
+                Codes.ENTER -> AudioManager.FX_KEYPRESS_RETURN
+                else -> AudioManager.FX_KEYPRESS_STANDARD
+            }
+            audio?.playSoundEffect(fx, -1f)
+        }
+    }
+
+    override fun onKey(key: Key) {
+        val ic = currentInputConnection ?: return
+        val wasSpace = lastWasSpace
+        lastWasSpace = false
+        when (key.code) {
+            Codes.SHIFT -> handleShift()
+            Codes.DELETE -> handleDelete(ic)
+            Codes.SYMBOLS -> setLayout("symbols")
+            Codes.MORE_SYMBOLS -> setLayout("more_symbols")
+            Codes.ALPHA -> setLayout("alpha")
+            Codes.LANGUAGE -> toggleLanguage(ic)
+            Codes.ENTER -> handleEnter(ic)
+            Codes.SPACE -> handleSpace(ic, wasSpace)
+            else -> typeChar(key.code.toChar(), ic)
+        }
+    }
+
+    override fun onAlt(text: String) {
+        val ic = currentInputConnection ?: return
+        lastWasSpace = false
+        if (text.length == 1) typeChar(text[0], ic, applyShift = false) else {
+            commitWord(ic)
+            ic.commitText(text, 1)
+        }
+    }
+
+    override fun onCursorMove(steps: Int) {
+        val ic = currentInputConnection ?: return
+        commitWord(ic)
+        val code = if (steps < 0) KeyEvent.KEYCODE_DPAD_LEFT else KeyEvent.KEYCODE_DPAD_RIGHT
+        repeat(kotlin.math.abs(steps)) { sendDownUpKeyEvents(code) }
+    }
+
+    override fun onSpaceLongPress() {
+        (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).showInputMethodPicker()
+    }
+
+    override fun onToolbar(action: ToolbarAction) {
+        when (action) {
+            ToolbarAction.LANGUAGE -> currentInputConnection?.let { toggleLanguage(it) }
+            ToolbarAction.ONE_HAND -> settings.oneHand = if (settings.oneHand == "off") "right" else "off"
+            ToolbarAction.SWAP_SIDE -> settings.oneHand = if (settings.oneHand == "left") "right" else "left"
+            ToolbarAction.EXPAND -> settings.oneHand = "off"
+            ToolbarAction.SETTINGS -> {
+                currentInputConnection?.let { commitWord(it) }
+                startActivity(Intent(this, SettingsActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+            ToolbarAction.HIDE -> requestHideSelf(0)
+        }
+    }
+
+    // ---- Key handling ----
+
+    private fun typeChar(c0: Char, ic: InputConnection, applyShift: Boolean = true) {
+        val c = if (applyShift && shift != Shift.OFF && layoutId == "alpha") c0.uppercaseChar() else c0
+        if (useEngine && engine.type(c)) {
+            ic.setComposingText(engine.composing, 1)
+        } else {
+            commitWord(ic)
+            ic.commitText(c.toString(), 1)
+        }
+        if (shift == Shift.ONCE && c.isLetter()) {
+            shift = Shift.OFF
+            refreshView()
+        }
+        if (!c.isLetterOrDigit()) updateAutoShift()
+    }
+
+    private fun commitWord(ic: InputConnection) {
+        if (engine.isEmpty) return
+        ic.finishComposingText()
+        engine.reset()
+    }
+
+    private fun handleSpace(ic: InputConnection, wasSpace: Boolean) {
+        commitWord(ic)
+        val before = ic.getTextBeforeCursor(2, 0)
+        if (wasSpace && settings.doubleSpacePeriod && before != null && before.length == 2 &&
+            before[1] == ' ' && before[0].isLetterOrDigit()
+        ) {
+            ic.deleteSurroundingText(1, 0)
+            ic.commitText(". ", 1)
+        } else {
+            ic.commitText(" ", 1)
+            lastWasSpace = true
+        }
+        if (layoutId == "symbols" || layoutId == "more_symbols") setLayout("alpha")
+        updateAutoShift()
+    }
+
+    private fun handleDelete(ic: InputConnection) {
+        if (engine.backspace()) {
+            ic.setComposingText(engine.composing, 1)
+            if (engine.isEmpty) ic.finishComposingText()
+            return
+        }
+        val selected = ic.getSelectedText(0)
+        when {
+            !selected.isNullOrEmpty() -> ic.commitText("", 1)
+            currentInputEditorInfo?.inputType == InputType.TYPE_NULL -> sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL)
+            Build.VERSION.SDK_INT >= 24 -> ic.deleteSurroundingTextInCodePoints(1, 0)
+            else -> ic.deleteSurroundingText(1, 0)
+        }
+        updateAutoShift()
+    }
+
+    private fun handleEnter(ic: InputConnection) {
+        commitWord(ic)
+        val info = currentInputEditorInfo
+        val action = (info?.imeOptions ?: 0) and EditorInfo.IME_MASK_ACTION
+        val noAction = info == null || (info.imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0 ||
+            action == EditorInfo.IME_ACTION_NONE || action == EditorInfo.IME_ACTION_UNSPECIFIED
+        when {
+            !noAction -> ic.performEditorAction(action)
+            info?.inputType == InputType.TYPE_NULL -> sendDownUpKeyEvents(KeyEvent.KEYCODE_ENTER)
+            else -> ic.commitText("\n", 1)
+        }
+        updateAutoShift()
+    }
+
+    private fun handleShift() {
+        val now = SystemClock.uptimeMillis()
+        shift = when {
+            shift == Shift.LOCKED -> Shift.OFF
+            shift == Shift.ONCE && now - lastShiftTap < DOUBLE_TAP_MS -> Shift.LOCKED
+            shift == Shift.ONCE -> Shift.OFF
+            else -> Shift.ONCE
+        }
+        lastShiftTap = now
+        refreshView()
+    }
+
+    private fun toggleLanguage(ic: InputConnection) {
+        commitWord(ic)
+        settings.vietnamese = !settings.vietnamese
+    }
+
+    private fun setLayout(id: String) {
+        layoutId = id
+        if (id == "alpha") updateAutoShift() else refreshView()
+    }
+
+    /** Capitalises the next letter at the start of a sentence, when the field asks for it. */
+    private fun updateAutoShift() {
+        if (shift == Shift.LOCKED) return
+        val ic = currentInputConnection
+        val info = currentInputEditorInfo
+        val caps = settings.autoCapitalize && ic != null && info != null && layoutId == "alpha" &&
+            !plainField && ic.getCursorCapsMode(info.inputType) != 0
+        val next = if (caps) Shift.ONCE else Shift.OFF
+        if (next != shift) {
+            shift = next
+            refreshView()
+        }
+    }
+
+    companion object {
+        private const val DOUBLE_TAP_MS = 350L
+        private val PLAIN_TEXT_VARIATIONS = setOf(
+            InputType.TYPE_TEXT_VARIATION_PASSWORD,
+            InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD,
+            InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD,
+            InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS,
+            InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS,
+            InputType.TYPE_TEXT_VARIATION_URI,
+        )
+    }
+}
