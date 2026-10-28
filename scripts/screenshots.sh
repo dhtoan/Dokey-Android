@@ -15,11 +15,19 @@ done
 adb shell ime list -a -s
 adb shell ime enable "$IME"
 adb shell ime set "$IME"
+# Slow CI emulators often raise "launcher isn't responding" dialogs; keep them off the screenshots.
+adb shell settings put global hide_error_dialogs 1
+sleep 30
+adb shell am force-stop com.google.android.apps.nexuslauncher || true
+adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS > /dev/null || true
+adb shell settings get secure default_input_method
 adb shell settings put global window_animation_scale 0
 adb shell settings put global transition_animation_scale 0
 
 shot() {
-  sleep 4
+  sleep 5
+  adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS > /dev/null || true
+  sleep 1
   adb exec-out screencap -p > "$OUT/$1.png"
   echo "captured $1"
 }
@@ -31,6 +39,8 @@ demo() {
 }
 
 adb shell cmd uimode night no
+demo warmup --es theme light
+adb shell dumpsys input_method | grep -E "mCurMethodId|mInputShown|mCurFocusedWindowName" || true
 for t in material_you light sakura lavender coffee; do demo "theme-$t" --es theme "$t"; done
 demo one-hand --es theme light --es one_hand right
 demo vni-number-row --es theme light --es method vni
@@ -46,4 +56,5 @@ shot settings-2
 
 # Leave the shared preferences as a fresh install would have them.
 adb shell am force-stop "$PKG"
+rm -f "$OUT/warmup.png"
 ls -l "$OUT"

@@ -3,6 +3,8 @@ package com.dhtoan.dokey
 import android.app.Activity
 import android.graphics.Typeface
 import android.os.Bundle
+import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -44,5 +46,9 @@ class DemoActivity : Activity() {
             },
         )
         field.requestFocus()
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+        field.postDelayed({
+            (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).showSoftInput(field, 0)
+        }, 500)
     }
 }
