@@ -1,34 +1,47 @@
 <div align="center">
 
-# Dokey cho Android
+<img src="docs/mockups/banner.svg" width="100%" alt="Dokey – bàn phím tiếng Việt cho Android">
 
-**Bàn phím tiếng Việt gọn, nhanh, đẹp – gõ Telex và VNI, chạy hoàn toàn trên máy.**
+<br>
 
-Bản Android của Dokey (macOS/Windows) · Kotlin · Android 7.0 trở lên
+![Phiên bản](https://img.shields.io/badge/phiên_bản-0.1.0-1E6FE8)
+![Android](https://img.shields.io/badge/Android-7.0%2B-3DDC84?logo=android&logoColor=white)
+![Kotlin](https://img.shields.io/badge/Kotlin-2.0-7F52FF?logo=kotlin&logoColor=white)
+![Quyền](https://img.shields.io/badge/quyền_Internet-không-2EA44F)
+![Trạng thái](https://img.shields.io/badge/máy_thật-chưa_thử-F59E0B)
 
-[Tải bản thử v0.1.0](https://github.com/dhtoan/Dokey-Android/releases/tag/v0.1.0) ·
-[Tính năng](#tính-năng) · [Theme](#12-theme) · [Cài đặt](#cài-bản-thử) · [Trạng thái](#trạng-thái)
-
-<img src="docs/mockups/theme-light.svg" width="360" alt="Dokey, theme Sáng">&nbsp;&nbsp;
-<img src="docs/mockups/theme-sunset.svg" width="360" alt="Dokey, theme Hoàng hôn">
-
-<sub>Ảnh minh hoạ được vẽ từ đúng bảng màu và bố cục phím trong mã nguồn
-(<code>scripts/mockups.py</code>), không phải ảnh chụp từ điện thoại.</sub>
+**[⬇ Tải Dokey v0.1.0](https://github.com/dhtoan/Dokey-Android/releases/tag/v0.1.0)** ·
+[Tính năng](#tính-năng) · [Theme](#12-theme) · [Cách dùng](#cách-dùng) · [Cài đặt](#cài-đặt) ·
+[Hỏi đáp](#hỏi-đáp)
 
 </div>
 
 ---
 
+Dokey là bàn phím tiếng Việt cho Android, anh em với Dokey trên macOS và Windows. Gõ Telex hoặc VNI, đặt dấu
+đúng chính tả dù gõ dấu ở bất kỳ đâu trong từ, tự nhận ra từ tiếng Anh để không thêm dấu bừa, và có 12 theme
+để chọn. Mọi thứ chạy trên máy: ứng dụng **không xin quyền truy cập Internet**.
+
+<div align="center">
+<img src="docs/mockups/theme-light.svg" width="360" alt="Dokey, theme Sáng">&nbsp;&nbsp;
+<img src="docs/mockups/theme-ocean.svg" width="360" alt="Dokey, theme Đại dương">
+<br>
+<sub>Ảnh trong trang này là ảnh minh hoạ, vẽ từ đúng bảng màu và bố cục phím trong mã nguồn
+(<code>scripts/mockups.py</code>), không phải ảnh chụp từ điện thoại.</sub>
+</div>
+
 ## Trạng thái
 
-> **v0.1.0 – bản thử nghiệm, chưa thử trên điện thoại thật.**
->
-> | Phần | Đã kiểm chứng bằng |
-> |---|---|
-> | Bộ gõ Telex/VNI | Unit test (`engine/src/test`), chạy xanh trên CI |
-> | Build APK | Đã build thành công, APK gắn ở bản pre-release v0.1.0 |
-> | Màn hình cài đặt | Mở và hiển thị được trên trình giả lập Android 14 (một lần chạy CI) |
-> | Bàn phím: vẽ phím, chạm, rung, theme, một tay | **Chưa kiểm chứng** – chưa ai cài và gõ thử |
+> [!IMPORTANT]
+> **v0.1.0 là bản đầu tiên và chưa được thử trên điện thoại thật.** Nếu gặp lỗi, hãy ghi lại ứng dụng đang
+> dùng và các phím đã gõ.
+
+| Phần | Đã kiểm chứng bằng |
+|---|---|
+| Bộ gõ Telex/VNI | Unit test (`engine/src/test`), đều qua |
+| Build APK | Build thành công; APK đính kèm ở bản phát hành v0.1.0 |
+| Màn hình cài đặt | Mở và hiển thị được trên trình giả lập Android 14 |
+| Bàn phím: vẽ phím, chạm, rung, theme, một tay | **Chưa kiểm chứng** – chưa ai cài và gõ thử |
 
 ## Tính năng
 
@@ -37,7 +50,7 @@ Bản Android của Dokey (macOS/Windows) · Kotlin · Android 7.0 trở lên
 - **Gõ dấu ở đâu cũng được**: `tieesng` hay `tieengs` đều ra *tiếng*; dấu luôn nằm đúng chỗ theo chính tả.
 - **Gõ lặp để bỏ dấu**: `ass` → *as*, `aaa` → *aa*, `ww` → *w*. Telex: `w` đứng riêng → *ư*.
 - **Giữ nguyên từ tiếng Anh**: *class, google, Windows, user* không bị thêm dấu (tắt được).
-- Ô mật khẩu, e-mail, URL và ô số luôn gõ không dấu.
+- **Tự gõ không dấu** trong ô mật khẩu, e-mail, URL và ô số.
 
 | Bạn gõ (Telex) | Ra | Bạn gõ (VNI) | Ra |
 |---|---|---|---|
@@ -45,16 +58,15 @@ Bản Android của Dokey (macOS/Windows) · Kotlin · Android 7.0 trở lên
 | `nguwowif` | người | `nguo7i2` | người |
 | `dduwowngf` | đường | `d9uo7ng2` | đường |
 | `hoawcj` | hoặc | `hoa2` | hoà |
+| `khuyur` | khuỷu | `a8n` | ăn |
 | `google` | google | `Covid19` | Covid19 |
 
 ### Bàn phím
-- QWERTY, trang số – ký hiệu (có **₫**), trang ký hiệu thứ hai, bàn phím số cho ô số/điện thoại.
-- **Giữ phím** để chọn ký tự phụ: hàng trên → số; `a` → â ă, `e` → ê, `o` → ô ơ, `u` → ư, `d` → đ.
+- QWERTY, trang số – ký hiệu (có **₫**), trang ký hiệu thứ hai, bàn phím số cho ô số và điện thoại.
 - **Phóng to phím khi nhấn**, **rung** chỉnh được độ mạnh, âm thanh gõ.
-- Shift một lần / khoá chữ hoa (chạm hai lần), tự viết hoa đầu câu, chạm dấu cách hai lần → dấu chấm.
-- **Vuốt phím cách để di con trỏ**, giữ phím cách để đổi bàn phím, giữ Xoá để xoá liên tục.
 - Phím Enter đổi biểu tượng theo ô nhập: tìm kiếm, gửi, tiếp, xong.
-- **Chế độ một tay** (trái/phải), 3 mức chiều cao phím, bật/tắt viền phím, hàng số riêng (nên bật khi gõ VNI).
+- **Chế độ một tay** (trái/phải), 3 mức chiều cao phím, bật/tắt viền phím, hàng số riêng.
+- Thanh công cụ: nút VI/EN, chế độ một tay, cài đặt, ẩn bàn phím.
 
 <div align="center">
 <img src="docs/mockups/one-hand.svg" width="360" alt="Chế độ một tay">
@@ -63,47 +75,109 @@ Bản Android của Dokey (macOS/Windows) · Kotlin · Android 7.0 trở lên
 
 ## 12 theme
 
-**Material You** (màu lấy theo hình nền, Android 12+), **Theo hệ thống** (tự đổi sáng/tối), và 10 theme cố định:
+**Material You** (màu lấy theo hình nền, Android 12+), **Theo hệ thống** (tự đổi sáng/tối) và 10 theme cố định.
+Màn hình cài đặt có hình xem trước từng theme.
 
 <table>
 <tr>
-<td align="center"><img src="docs/mockups/theme-light.svg" width="250"><br>Sáng</td>
-<td align="center"><img src="docs/mockups/theme-dark.svg" width="250"><br>Tối</td>
-<td align="center"><img src="docs/mockups/theme-amoled.svg" width="250"><br>Đen AMOLED</td>
+<td align="center"><img src="docs/mockups/theme-light.svg" width="250"><br><b>Sáng</b></td>
+<td align="center"><img src="docs/mockups/theme-dark.svg" width="250"><br><b>Tối</b></td>
+<td align="center"><img src="docs/mockups/theme-amoled.svg" width="250"><br><b>Đen AMOLED</b></td>
 </tr>
 <tr>
-<td align="center"><img src="docs/mockups/theme-ocean.svg" width="250"><br>Đại dương</td>
-<td align="center"><img src="docs/mockups/theme-sunset.svg" width="250"><br>Hoàng hôn</td>
-<td align="center"><img src="docs/mockups/theme-midnight.svg" width="250"><br>Đêm sao</td>
+<td align="center"><img src="docs/mockups/theme-ocean.svg" width="250"><br><b>Đại dương</b></td>
+<td align="center"><img src="docs/mockups/theme-sunset.svg" width="250"><br><b>Hoàng hôn</b></td>
+<td align="center"><img src="docs/mockups/theme-midnight.svg" width="250"><br><b>Đêm sao</b></td>
 </tr>
 <tr>
-<td align="center"><img src="docs/mockups/theme-sakura.svg" width="250"><br>Hoa anh đào</td>
-<td align="center"><img src="docs/mockups/theme-lavender.svg" width="250"><br>Oải hương</td>
-<td align="center"><img src="docs/mockups/theme-coffee.svg" width="250"><br>Cà phê sữa</td>
+<td align="center"><img src="docs/mockups/theme-sakura.svg" width="250"><br><b>Hoa anh đào</b></td>
+<td align="center"><img src="docs/mockups/theme-lavender.svg" width="250"><br><b>Oải hương</b></td>
+<td align="center"><img src="docs/mockups/theme-coffee.svg" width="250"><br><b>Cà phê sữa</b></td>
 </tr>
 <tr>
-<td align="center"><img src="docs/mockups/theme-forest.svg" width="250"><br>Rừng thông</td>
-<td></td><td></td>
+<td align="center"><img src="docs/mockups/theme-forest.svg" width="250"><br><b>Rừng thông</b></td>
+<td align="center" colspan="2"><i>Material You và Theo hệ thống đổi màu theo máy,<br>nên không có ảnh cố định.</i></td>
 </tr>
 </table>
 
-Màn hình cài đặt có hình xem trước cho từng theme và ô để gõ thử ngay.
+## Cách dùng
 
-## Cài bản thử
+| Thao tác | Kết quả |
+|---|---|
+| Chạm **VI/EN** (cạnh phím cách hoặc trên thanh công cụ) | Bật/tắt gõ tiếng Việt |
+| Giữ phím hàng trên | Gõ số 1–0 |
+| Giữ `a` · `e` · `o` · `u` · `d` | Chọn â ă · ê · ô ơ · ư · đ |
+| Giữ `,` hoặc `.` | Dấu câu khác (? ! ; : …) |
+| Chạm **Shift** một lần / hai lần | Viết hoa một chữ / khoá chữ hoa |
+| Chạm dấu cách hai lần | Thêm dấu chấm và dấu cách |
+| Vuốt ngang trên phím cách | Di chuyển con trỏ |
+| Giữ phím cách | Đổi sang bàn phím khác |
+| Giữ **Xoá** | Xoá liên tục |
 
-1. Mở [bản pre-release v0.1.0](https://github.com/dhtoan/Dokey-Android/releases/tag/v0.1.0) và tải
+## So với các bàn phím khác
+
+Chỉ so trên những gì Dokey đang có; Gboard và Laban Key có nhiều tính năng mà Dokey chưa có (gợi ý từ, gõ vuốt, emoji).
+
+| | Dokey 0.1 | Gboard | Laban Key |
+|---|:-:|:-:|:-:|
+| Telex và VNI | ✓ | ✓ | ✓ |
+| Gõ dấu ở bất kỳ đâu trong từ | ✓ | ? | ✓ |
+| Giữ nguyên từ tiếng Anh | ✓ | ? | ✓ |
+| Theme Material You | ✓ | ✓ | ? |
+| Chế độ một tay | ✓ | ✓ | ? |
+| Không xin quyền Internet | ✓ | – | ? |
+| Gợi ý từ, gõ vuốt, emoji | – | ✓ | ✓ |
+
+<sub>“?” là chưa kiểm chứng. Thông tin về Gboard và Laban Key lấy từ khảo sát tháng 10/2026
+([docs/research.md](docs/research.md)) và có thể đã thay đổi.</sub>
+
+## Cài đặt
+
+1. Mở [bản phát hành v0.1.0](https://github.com/dhtoan/Dokey-Android/releases/tag/v0.1.0) và tải
    `dokey-android-v0.1.0-debug.apk`.
 2. Cài file APK (Android sẽ hỏi cho phép cài từ nguồn không xác định).
 3. Mở ứng dụng **Dokey** → **Bật Dokey** → **Chọn bàn phím**.
+4. Gõ thử ngay trong ô **Thử bàn phím** ở cuối màn hình cài đặt.
 
-Bản debug được ký bằng khoá tạm, nên muốn cài một bản build khác phải gỡ bản cũ trước.
+## Quyền riêng tư
 
-## Sắp tới
+Dokey chỉ xin **một quyền: rung**. Không có quyền Internet, nên những gì bạn gõ không thể bị gửi đi đâu.
+Cài đặt được lưu trong bộ nhớ riêng của ứng dụng trên máy.
 
-Gợi ý từ · gõ vuốt · emoji · bộ nhớ tạm · nhập bằng giọng nói · theme ảnh nền tuỳ chọn.
-Ý tưởng lấy từ khảo sát Gboard, SwiftKey, Samsung Keyboard và Laban Key: [docs/research.md](docs/research.md).
+## Hỏi đáp
 
-## Cấu trúc mã nguồn
+**Vì sao từ đang gõ có gạch chân?**
+Dokey hiển thị từ đang gõ dưới dạng *composing text* để có thể sửa dấu cho cả từ. Gạch chân mất khi gõ dấu cách
+hoặc dấu câu. Có ứng dụng không hiện gạch chân.
+
+**Gõ tiếng Anh bị thêm dấu?**
+Bật *Giữ nguyên từ tiếng Anh* trong cài đặt (mặc định đã bật), hoặc chạm VI/EN để chuyển sang tiếng Anh.
+Từ hợp lệ trong cả hai ngôn ngữ, như *test* → *tét*, vẫn bị thêm dấu khi đang gõ tiếng Việt.
+
+**Cài bản mới bị báo lỗi chữ ký?**
+v0.1.0 là bản debug, ký bằng khoá tạm. Gỡ bản cũ rồi cài bản mới.
+
+**Có bản cho iPhone không?**
+Chưa. Bộ gõ được viết bằng Kotlin thuần nên có thể dùng lại cho iOS bằng Kotlin Multiplatform, nhưng giao diện
+bàn phím iOS phải viết lại bằng Swift.
+
+## Lộ trình
+
+- [x] Telex, VNI, gõ dấu tự do, giữ nguyên từ tiếng Anh
+- [x] 12 theme, chế độ một tay, rung, phóng to phím, ký tự phụ
+- [ ] Thử trên điện thoại thật (Zalo, Messenger, Chrome)
+- [ ] Bản release ký bằng khoá cố định
+- [ ] Gợi ý từ tiếng Việt
+- [ ] Emoji và bộ nhớ tạm
+- [ ] Gõ vuốt
+- [ ] Theme ảnh nền tuỳ chọn
+
+## Nhật ký thay đổi
+
+**0.1.0** (29/10/2026) – bản đầu tiên: bộ gõ Telex/VNI, bàn phím QWERTY và ký hiệu, 12 theme, chế độ một tay,
+rung và âm thanh, màn hình cài đặt.
+
+## Dành cho nhà phát triển
 
 ```
 engine/   Bộ gõ tiếng Việt – Kotlin thuần, không phụ thuộc Android, có unit test
@@ -113,21 +187,20 @@ scripts/  mockups.py (vẽ ảnh minh hoạ), screenshots.sh (chụp ảnh trên
 ```
 
 - **Bộ gõ viết mới** từ quy tắc chính tả tiếng Việt công khai, không dựa trên mã nguồn bộ gõ nào khác.
-  Vì là Kotlin thuần nên sau này có thể dùng lại cho iOS bằng Kotlin Multiplatform.
+  Mỗi phím gõ, cả từ được dựng lại từ các phím đã gõ, nên dấu luôn nằm đúng chỗ.
 - **Bàn phím là View tự vẽ** (không dùng Compose) để mở nhanh và nhẹ trên máy yếu; Compose chỉ dùng cho cài đặt.
-- Từ đang gõ hiển thị dạng *composing text* (có gạch chân trong nhiều ứng dụng) và được chốt khi gõ dấu cách
-  hoặc dấu câu.
 
-## Build
-
-Cần JDK 17, Gradle 8.9 và Android SDK (compileSdk 35):
+Build cần JDK 17, Gradle 8.9 và Android SDK (compileSdk 35):
 
 ```bash
 gradle :engine:test :app:assembleDebug
 ```
 
-Repo hiện không có workflow GitHub Actions. `scripts/screenshots.sh` chụp ảnh bàn phím trên một trình giả lập
-đang chạy (cần bản debug, vì nó dùng màn hình demo chỉ có trong bản debug).
+Vẽ lại ảnh minh hoạ sau khi sửa màu theme:
+
+```bash
+python3 scripts/mockups.py
+```
 
 ## Giấy phép
 

@@ -138,6 +138,50 @@ def svg(t, one_hand=None, pressed="t"):
     return "\n".join(parts)
 
 
+def banner(t):
+    """Wide header image for the README: logo, name, tagline and a keyboard in theme [t]."""
+    bw, bh = 1200, 400
+    kb, kb_end = keyboard(t, 0, pressed="t")
+    scale = 1.25
+    kx, ky = bw - W * scale - 70, (bh - kb_end * scale) / 2
+    chips = ["Telex · VNI", "12 theme", "Một tay", "Không cần mạng"]
+    chip_svg, x = [], 96
+    for c in chips:
+        w = 22 + len(c) * 11
+        chip_svg.append(f'<rect x="{x}" y="276" width="{w}" height="38" rx="19" fill="#FFFFFF" fill-opacity="0.16"/>')
+        chip_svg.append(f'<text x="{x + w / 2}" y="301" text-anchor="middle" font-size="18" fill="#FFFFFF">{c}</text>')
+        x += w + 12
+    return "\n".join([
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {bw} {bh}" width="{bw}" height="{bh}" font-family="Roboto, Segoe UI, Helvetica, Arial, sans-serif">',
+        '<defs>',
+        '<linearGradient id="hero" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1E6FE8"/><stop offset="1" stop-color="#7B4397"/></linearGradient>',
+        f'<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{t["bgTop"][0]}"/><stop offset="1" stop-color="{t["bgBottom"][0]}"/></linearGradient>',
+        '<filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.25"/></filter>',
+        '<filter id="card" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="10" stdDeviation="14" flood-opacity="0.35"/></filter>',
+        '</defs>',
+        f'<rect width="{bw}" height="{bh}" rx="28" fill="url(#hero)"/>',
+        '<circle cx="1120" cy="40" r="160" fill="#FFFFFF" fill-opacity="0.06"/>',
+        '<circle cx="80" cy="380" r="120" fill="#FFFFFF" fill-opacity="0.05"/>',
+        # logo tile with the same "Đ" mark as the app icon
+        '<g transform="translate(96,70)">',
+        '<rect width="92" height="92" rx="24" fill="#FFFFFF" fill-opacity="0.18"/>',
+        '<g transform="translate(-8,-8) scale(1)">',
+        '<path fill="#FFFFFF" fill-rule="evenodd" d="M36,32 h14 a22,22 0 0 1 0,44 h-14 z M44,40 v28 h6 a14,14 0 0 0 0,-28 z"/>',
+        '<path fill="#FFFFFF" d="M30,51 h18 v6 h-18 z"/>',
+        '<path fill="#FFD166" d="M70,30 a5,5 0 1 1 0.01,0 z"/>',
+        '</g></g>',
+        '<text x="210" y="138" font-size="64" font-weight="700" fill="#FFFFFF">Dokey</text>',
+        '<text x="96" y="218" font-size="30" fill="#FFFFFF">Bàn phím tiếng Việt cho Android</text>',
+        '<text x="96" y="254" font-size="20" fill="#FFFFFF" fill-opacity="0.8">Gõ dấu ở đâu cũng đúng · nhẹ · chạy hoàn toàn trên máy</text>',
+        *chip_svg,
+        f'<g transform="translate({kx:.0f},{ky:.0f}) scale({scale})" filter="url(#card)">',
+        f'<rect width="{W}" height="{kb_end:.0f}" rx="18" fill="url(#bg)"/>',
+        *kb,
+        '</g>',
+        '</svg>',
+    ])
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     ts = list(themes())
@@ -148,6 +192,8 @@ def main():
     light = next(t for t in ts if t["id"] == "light")
     with open(os.path.join(OUT, "one-hand.svg"), "w", encoding="utf-8") as f:
         f.write(svg(light, one_hand="right", pressed=None))
+    with open(os.path.join(OUT, "banner.svg"), "w", encoding="utf-8") as f:
+        f.write(banner(next(t for t in ts if t["id"] == "midnight")))
     print("wrote", len(ts) + 1, "mockups:", ", ".join(t["id"] for t in ts))
 
 
