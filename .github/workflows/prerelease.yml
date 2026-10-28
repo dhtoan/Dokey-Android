@@ -1,0 +1,42 @@
+name: Pre-release
+
+# Builds the debug APK and attaches it to a GitHub pre-release.
+# Release assets do not count against the Actions artifact storage quota.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag, e.g. v0.1.0"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  prerelease:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Test and build
+        run: gradle --no-daemon :engine:test :app:assembleDebug
+
+      - name: Create pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk "dokey-android-$TAG-debug.apk"
+          gh release create "$TAG" "dokey-android-$TAG-debug.apk" \
+            --prerelease --target "$GITHUB_SHA" --title "Dokey Android $TAG (thử nghiệm)" \
+            --notes "Bản debug thử nghiệm, **chưa thử trên điện thoại thật**. Xem README để biết tính năng và cách cài. Muốn cài bản mới hơn phải gỡ bản cũ trước (khoá ký debug đổi mỗi lần build)."

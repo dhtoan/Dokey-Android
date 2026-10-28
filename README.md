@@ -32,7 +32,8 @@ Chưa có: gợi ý từ, gõ vuốt, emoji, bộ nhớ tạm, giọng nói. Xem
 
 ## Cài đặt bản thử
 
-1. Vào tab **Actions** → lần chạy mới nhất → tải artifact `dokey-android-debug` (nếu còn chỗ lưu trữ).
+1. Vào **Releases** → bản pre-release mới nhất → tải file `dokey-android-*-debug.apk`.
+   (Bản mới có thể tạo bằng workflow **Pre-release** trong tab Actions.)
 2. Cài file APK (cần cho phép cài từ nguồn không xác định).
 3. Mở ứng dụng Dokey → bật Dokey → chọn Dokey làm bàn phím.
 
