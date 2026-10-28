@@ -6,8 +6,15 @@ OUT=docs/screenshots
 mkdir -p "$OUT"
 
 adb install -r app/build/outputs/apk/debug/app-debug.apk
-adb shell ime enable "$PKG/.ime.DokeyIme"
-adb shell ime set "$PKG/.ime.DokeyIme"
+IME="$PKG/.ime.DokeyIme"
+# The system needs a moment to register a freshly installed keyboard.
+for i in $(seq 1 30); do
+  if adb shell ime list -a -s | grep -q "$IME"; then break; fi
+  sleep 2
+done
+adb shell ime list -a -s
+adb shell ime enable "$IME"
+adb shell ime set "$IME"
 adb shell settings put global window_animation_scale 0
 adb shell settings put global transition_animation_scale 0
 
