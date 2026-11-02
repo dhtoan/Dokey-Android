@@ -2,9 +2,12 @@ package com.dhtoan.dokey.ime
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.Typeface
@@ -35,7 +38,26 @@ data class KeyboardState(
     val preview: Boolean = true,
     /** "off", "left" or "right". */
     val oneHand: String = "off",
+    val keyStyle: KeyStyle = KeyStyle.FLAT,
+    /** Background picture for the photo theme, drawn centre-cropped under [photoDim]. */
+    val photo: Bitmap? = null,
+    /** 0–100: how much the photo is darkened so the keys stay readable. */
+    val photoDim: Int = 35,
 )
+
+enum class KeyStyle(val id: String) {
+    FLAT("flat"),
+    /** Keys with a darker bottom edge, as if they stand out from the board. */
+    RAISED("raised"),
+    /** Fully rounded keys. */
+    ROUND("round"),
+    /** Only a thin outline around each key. */
+    OUTLINE("outline");
+
+    companion object {
+        fun of(id: String) = entries.firstOrNull { it.id == id } ?: FLAT
+    }
+}
 
 /** The keyboard, drawn on a Canvas: a toolbar strip on top and rows of keys below. */
 @SuppressLint("ViewConstructor")
@@ -81,12 +103,19 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
 
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG)
     private val text = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
+    private val outline = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = dp(1.2f)
+    }
     private val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = dp(1.8f)
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
     }
+    private val photoPaint = Paint(Paint.FILTER_BITMAP_FLAG)
+    private val photoSrc = Rect()
+    private val photoDst = Rect()
     private var bgShader: LinearGradient? = null
     private var shaderKey = ""
 
@@ -206,6 +235,20 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
     }
 
     private fun drawBackground(canvas: Canvas, t: KeyboardTheme) {
+        val photo = state.photo
+        if (photo != null) {
+            // Centre-crop the picture to the keyboard's shape.
+            val scale = maxOf(width.toFloat() / photo.width, height.toFloat() / photo.height)
+            val w = (width / scale).toInt()
+            val h = (height / scale).toInt()
+            val left = (photo.width - w) / 2
+            val top = (photo.height - h) / 2
+            photoSrc.set(left, top, left + w, top + h)
+            photoDst.set(0, 0, width, height)
+            canvas.drawBitmap(photo, photoSrc, photoDst, photoPaint)
+            canvas.drawColor(Color.argb(state.photoDim * 255 / 100, 0, 0, 0))
+            return
+        }
         if (t.bgTop == t.bgBottom) {
             canvas.drawColor(t.bgTop)
             return
@@ -277,10 +320,7 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
             isFunctionKey(k) -> t.keyFn
             else -> t.key
         }
-        if (state.borders || isEnter || pressed) {
-            fill.color = bg
-            canvas.drawRoundRect(r, radius, radius, fill)
-        }
+        drawKeyShape(canvas, r, bg, state.borders || isEnter || pressed, isEnter || pressed, t)
         val fg = if (isEnter) t.onAccent else t.text
         val cx = r.centerX()
         val cy = r.centerY()
@@ -329,6 +369,37 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
                 }
             }
         }
+    }
+
+    /** Draws the key cap in the current [KeyStyle]. [filled] is false for borderless keys. */
+    private fun drawKeyShape(canvas: Canvas, r: RectF, bg: Int, filled: Boolean, solid: Boolean, t: KeyboardTheme) {
+        val style = state.keyStyle
+        val rad = if (style == KeyStyle.ROUND) minOf(r.width(), r.height()) / 2 else radius
+        when {
+            style == KeyStyle.OUTLINE && !solid -> {
+                outline.color = t.text
+                outline.alpha = 90
+                canvas.drawRoundRect(r, rad, rad, outline)
+            }
+            !filled -> Unit
+            style == KeyStyle.RAISED -> {
+                fill.color = shade(bg, t.dark)
+                canvas.drawRoundRect(r.left, r.top + dp(2f), r.right, r.bottom + dp(2f), rad, rad, fill)
+                fill.color = bg
+                canvas.drawRoundRect(r, rad, rad, fill)
+            }
+            else -> {
+                fill.color = bg
+                canvas.drawRoundRect(r, rad, rad, fill)
+            }
+        }
+    }
+
+    /** The colour of a raised key's bottom edge: the key colour, darker. */
+    private fun shade(c: Int, dark: Boolean): Int {
+        val f = if (dark) 0.45f else 0.72f
+        val a = maxOf(Color.alpha(c), 120)
+        return Color.argb(a, (Color.red(c) * f).toInt(), (Color.green(c) * f).toInt(), (Color.blue(c) * f).toInt())
     }
 
     private fun displayLabel(k: Key) =

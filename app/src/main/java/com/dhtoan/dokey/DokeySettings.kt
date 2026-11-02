@@ -27,6 +27,10 @@ class DokeySettings(context: Context) {
     val keyHeight: String get() = prefs.getString(KEY_HEIGHT, "medium") ?: "medium"
     val keyBorders get() = prefs.getBoolean(KEY_BORDERS, true)
     val keyPreview get() = prefs.getBoolean(KEY_PREVIEW, true)
+    val keyStyle: String get() = prefs.getString(KEY_STYLE, "flat") ?: "flat"
+    val photoDim get() = prefs.getInt(PHOTO_DIM, 35)
+    /** Changes whenever a new background photo is saved, so the keyboard reloads it. */
+    val photoVersion get() = prefs.getLong(PHOTO_VERSION, 0L)
 
     /** On by default for VNI, which types tones with digits. */
     val numberRow get() = prefs.getBoolean(NUMBER_ROW, method == TypingMethod.VNI)
@@ -51,6 +55,11 @@ class DokeySettings(context: Context) {
         const val KEY_HEIGHT = "key_height"
         const val KEY_BORDERS = "key_borders"
         const val KEY_PREVIEW = "key_preview"
+        const val KEY_STYLE = "key_style"
+        const val PHOTO_DIM = "photo_dim"
+        const val PHOTO_VERSION = "photo_version"
+        /** The background photo, downscaled, in the app's private files. */
+        const val PHOTO_FILE = "keyboard_photo.jpg"
         const val NUMBER_ROW = "number_row"
         const val ONE_HAND = "one_hand"
         const val VIBRATE = "vibrate"

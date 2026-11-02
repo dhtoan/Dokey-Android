@@ -17,11 +17,11 @@ FIELDS = ["bgTop", "bgBottom", "key", "keyFn", "keyPressed", "text", "textDim", 
 
 def themes():
     src = open(SRC, encoding="utf-8").read()
-    for m in re.finditer(r'KeyboardTheme\(\s*"(\w+)", "([^"]+)",(.*?)(true|false),\s*\)', src, re.S):
+    for m in re.finditer(r'KeyboardTheme\(\s*"(\w+)", "([^"]+)",(.*?)(true|false),(?:\s*"(\w+)",)?\s*\)', src, re.S):
         values = re.findall(r"c\(0x([0-9A-Fa-f]{8})\)", m.group(3))
         if len(values) != len(FIELDS):
             continue
-        t = {"id": m.group(1), "name": m.group(2), "dark": m.group(4) == "true"}
+        t = {"id": m.group(1), "name": m.group(2), "dark": m.group(4) == "true", "group": m.group(5) or "color"}
         for f, v in zip(FIELDS, values):
             a = int(v[:2], 16) / 255
             t[f] = (f"#{v[2:]}", round(a, 3))
@@ -48,7 +48,26 @@ ROWS = [
 HINTS = dict(zip("qwertyuiop", "1234567890"))
 
 
-def keyboard(t, y0, one_hand=None, pressed=None):
+def shade(c, dark):
+    color, alpha = c
+    f = 0.45 if dark else 0.72
+    r, g, b = (int(color[i:i + 2], 16) for i in (1, 3, 5))
+    return (f"#{int(r * f):02X}{int(g * f):02X}{int(b * f):02X}", max(alpha, 0.47))
+
+
+def key_cap(t, style, x, y, w, h, bg, solid):
+    """One key cap in the given style, mirroring KeyboardView.drawKeyShape."""
+    rx = h / 2 if style == "round" else 7
+    if style == "outline" and not solid:
+        return [f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h}" rx="{rx}" fill="none" stroke-width="1.2" {stroke((t["text"][0], 0.35))}/>']
+    out = []
+    if style == "raised":
+        out.append(f'<rect x="{x:.1f}" y="{y + 2:.1f}" width="{w:.1f}" height="{h}" rx="{rx}" {fill(shade(bg, t["dark"]))}/>')
+    out.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h}" rx="{rx}" {fill(bg)}/>')
+    return out
+
+
+def keyboard(t, y0, one_hand=None, pressed=None, style="flat"):
     out = []
     unit_w = W - SIDE * 2
     left = SIDE
@@ -78,7 +97,7 @@ def keyboard(t, y0, one_hand=None, pressed=None):
             kx, kw = x + HGAP / 2, w * unit - HGAP
             is_fn = label in ("SHIFT", "DEL", "?123", "VI", "ENTER")
             bg = t["accent"] if label == "ENTER" else t["keyPressed"] if label == pressed else t["keyFn"] if is_fn else t["key"]
-            out.append(f'<rect x="{kx:.1f}" y="{y:.1f}" width="{kw:.1f}" height="{KEY_H}" rx="7" {fill(bg)}/>')
+            out += key_cap(t, style, kx, y, kw, KEY_H, bg, label in ("ENTER", pressed))
             cx, cy = kx + kw / 2, y + KEY_H / 2
             fg = t["onAccent"] if label == "ENTER" else t["text"]
             if label == "SHIFT":
@@ -113,9 +132,9 @@ def keyboard(t, y0, one_hand=None, pressed=None):
     return out, y + 2
 
 
-def svg(t, one_hand=None, pressed="t"):
+def svg(t, one_hand=None, pressed="t", style="flat"):
     field_h = 64
-    body, end = keyboard(t, field_h, one_hand, pressed)
+    body, end = keyboard(t, field_h, one_hand, pressed, style)
     h = end
     app_bg = "#1F2125" if t["dark"] else "#FAFAFC"
     app_fg = "#E8EAED" if t["dark"] else "#1B1D22"
@@ -144,7 +163,7 @@ def banner(t):
     kb, kb_end = keyboard(t, 0, pressed="t")
     scale = 1.25
     kx, ky = bw - W * scale - 70, (bh - kb_end * scale) / 2
-    chips = ["Telex · VNI", "12 theme", "Một tay", "Không cần mạng"]
+    chips = ["Telex · VNI", "22 theme + ảnh nền", "4 kiểu phím", "Không cần mạng"]
     chip_svg, x = [], 96
     for c in chips:
         w = 22 + len(c) * 11
@@ -185,13 +204,17 @@ def banner(t):
 def main():
     os.makedirs(OUT, exist_ok=True)
     ts = list(themes())
-    assert len(ts) >= 10, f"parsed only {len(ts)} themes"
+    assert len(ts) >= 20, f"parsed only {len(ts)} themes"
     for t in ts:
         with open(os.path.join(OUT, f"theme-{t['id']}.svg"), "w", encoding="utf-8") as f:
             f.write(svg(t))
     light = next(t for t in ts if t["id"] == "light")
     with open(os.path.join(OUT, "one-hand.svg"), "w", encoding="utf-8") as f:
         f.write(svg(light, one_hand="right", pressed=None))
+    styles = {"flat": "light", "raised": "tet", "round": "sakura", "outline": "midnight"}
+    for style, tid in styles.items():
+        with open(os.path.join(OUT, f"style-{style}.svg"), "w", encoding="utf-8") as f:
+            f.write(svg(next(t for t in ts if t["id"] == tid), pressed=None, style=style))
     with open(os.path.join(OUT, "banner.svg"), "w", encoding="utf-8") as f:
         f.write(banner(next(t for t in ts if t["id"] == "midnight")))
     print("wrote", len(ts) + 1, "mockups:", ", ".join(t["id"] for t in ts))

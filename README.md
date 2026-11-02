@@ -11,7 +11,7 @@
 ![Trạng thái](https://img.shields.io/badge/máy_thật-chưa_thử-F59E0B)
 
 **[⬇ Tải Dokey v0.1.0](https://github.com/dhtoan/Dokey-Android/releases/tag/v0.1.0)** ·
-[Tính năng](#tính-năng) · [Theme](#12-theme) · [Cách dùng](#cách-dùng) · [Cài đặt](#cài-đặt) ·
+[Tính năng](#tính-năng) · [Theme](#22-theme-và-ảnh-nền) · [Cách dùng](#cách-dùng) · [Cài đặt](#cài-đặt) ·
 [Hỏi đáp](#hỏi-đáp)
 
 </div>
@@ -19,8 +19,8 @@
 ---
 
 Dokey là bàn phím tiếng Việt cho Android, anh em với Dokey trên macOS và Windows. Gõ Telex hoặc VNI, đặt dấu
-đúng chính tả dù gõ dấu ở bất kỳ đâu trong từ, tự nhận ra từ tiếng Anh để không thêm dấu bừa, và có 12 theme
-để chọn. Mọi thứ chạy trên máy: ứng dụng **không xin quyền truy cập Internet**.
+đúng chính tả dù gõ dấu ở bất kỳ đâu trong từ, tự nhận ra từ tiếng Anh để không thêm dấu bừa, và có 22 theme,
+4 kiểu phím và theme bằng ảnh của chính bạn. Mọi thứ chạy trên máy: ứng dụng **không xin quyền truy cập Internet**.
 
 <div align="center">
 <img src="docs/mockups/theme-light.svg" width="360" alt="Dokey, theme Sáng">&nbsp;&nbsp;
@@ -42,6 +42,7 @@ Dokey là bàn phím tiếng Việt cho Android, anh em với Dokey trên macOS 
 | Build APK | Build thành công; APK đính kèm ở bản phát hành v0.1.0 |
 | Màn hình cài đặt | Mở và hiển thị được trên trình giả lập Android 14 |
 | Bàn phím: vẽ phím, chạm, rung, theme, một tay | **Chưa kiểm chứng** – chưa ai cài và gõ thử |
+| Theme mới, kiểu phím, ảnh nền (0.2) | **Chưa build** – mã đã viết nhưng chưa biên dịch; APK v0.1.0 chưa có các phần này |
 
 ## Tính năng
 
@@ -73,10 +74,13 @@ Dokey là bàn phím tiếng Việt cho Android, anh em với Dokey trên macOS 
 <br><sub>Chế độ một tay: bàn phím thu về một bên, có nút đổi bên và nút trở lại cỡ đầy đủ.</sub>
 </div>
 
-## 12 theme
+## 22 theme và ảnh nền
 
-**Material You** (màu lấy theo hình nền, Android 12+), **Theo hệ thống** (tự đổi sáng/tối) và 10 theme cố định.
-Màn hình cài đặt có hình xem trước từng theme.
+Theme được chia thành nhóm trong màn hình cài đặt, mỗi theme có hình xem trước theo đúng kiểu phím đang chọn.
+
+### Cơ bản
+
+Ngoài Material You (màu theo hình nền, Android 12+) và Theo hệ thống (tự đổi sáng/tối):
 
 <table>
 <tr>
@@ -84,6 +88,11 @@ Màn hình cài đặt có hình xem trước từng theme.
 <td align="center"><img src="docs/mockups/theme-dark.svg" width="250"><br><b>Tối</b></td>
 <td align="center"><img src="docs/mockups/theme-amoled.svg" width="250"><br><b>Đen AMOLED</b></td>
 </tr>
+</table>
+
+### Màu sắc
+
+<table>
 <tr>
 <td align="center"><img src="docs/mockups/theme-ocean.svg" width="250"><br><b>Đại dương</b></td>
 <td align="center"><img src="docs/mockups/theme-sunset.svg" width="250"><br><b>Hoàng hôn</b></td>
@@ -96,9 +105,62 @@ Màn hình cài đặt có hình xem trước từng theme.
 </tr>
 <tr>
 <td align="center"><img src="docs/mockups/theme-forest.svg" width="250"><br><b>Rừng thông</b></td>
-<td align="center" colspan="2"><i>Material You và Theo hệ thống đổi màu theo máy,<br>nên không có ảnh cố định.</i></td>
+<td align="center"><img src="docs/mockups/theme-neon.svg" width="250"><br><b>Neon</b></td>
+<td align="center"><img src="docs/mockups/theme-pastel.svg" width="250"><br><b>Kẹo ngọt</b></td>
+</tr>
+<tr>
+<td align="center"><img src="docs/mockups/theme-matcha.svg" width="250"><br><b>Trà xanh</b></td>
+<td></td>
+<td></td>
 </tr>
 </table>
+
+### Việt Nam
+
+Lấy cảm hứng từ những cảnh quen thuộc – chỉ dùng màu, không dùng ảnh của ai.
+
+<table>
+<tr>
+<td align="center"><img src="docs/mockups/theme-hoi_an.svg" width="250"><br><b>Phố cổ Hội An</b></td>
+<td align="center"><img src="docs/mockups/theme-ha_long.svg" width="250"><br><b>Vịnh Hạ Long</b></td>
+<td align="center"><img src="docs/mockups/theme-sen.svg" width="250"><br><b>Sen hồng</b></td>
+</tr>
+<tr>
+<td align="center"><img src="docs/mockups/theme-lua.svg" width="250"><br><b>Đồng lúa</b></td>
+<td></td>
+<td></td>
+</tr>
+</table>
+
+### Lễ hội
+
+<table>
+<tr>
+<td align="center"><img src="docs/mockups/theme-tet.svg" width="250"><br><b>Tết</b></td>
+<td align="center"><img src="docs/mockups/theme-trung_thu.svg" width="250"><br><b>Trung thu</b></td>
+<td align="center"><img src="docs/mockups/theme-giang_sinh.svg" width="250"><br><b>Giáng sinh</b></td>
+</tr>
+</table>
+
+### Ảnh của bạn
+
+Chọn một ảnh trong máy làm nền bàn phím. Ảnh được thu nhỏ và lưu trong bộ nhớ riêng của Dokey, không gửi đi đâu.
+Có thanh **Làm tối ảnh** (0–80%) để chữ trên phím luôn dễ đọc; phím chuyển sang kiểu kính mờ.
+
+## 4 kiểu phím
+
+<table>
+<tr>
+<td align="center"><img src="docs/mockups/style-flat.svg" width="250"><br><b>Phẳng</b></td>
+<td align="center"><img src="docs/mockups/style-raised.svg" width="250"><br><b>Phím nổi</b></td>
+</tr>
+<tr>
+<td align="center"><img src="docs/mockups/style-round.svg" width="250"><br><b>Bo tròn</b></td>
+<td align="center"><img src="docs/mockups/style-outline.svg" width="250"><br><b>Viền mảnh</b></td>
+</tr>
+</table>
+
+Kiểu phím dùng được với mọi theme (ảnh trên lần lượt là theme Sáng, Tết, Hoa anh đào, Đêm sao).
 
 ## Cách dùng
 
@@ -165,14 +227,20 @@ bàn phím iOS phải viết lại bằng Swift.
 
 - [x] Telex, VNI, gõ dấu tự do, giữ nguyên từ tiếng Anh
 - [x] 12 theme, chế độ một tay, rung, phóng to phím, ký tự phụ
+- [x] 22 theme theo nhóm, 4 kiểu phím, theme ảnh nền (bản 0.2, chưa build)
 - [ ] Thử trên điện thoại thật (Zalo, Messenger, Chrome)
 - [ ] Bản release ký bằng khoá cố định
 - [ ] Gợi ý từ tiếng Việt
 - [ ] Emoji và bộ nhớ tạm
 - [ ] Gõ vuốt
-- [ ] Theme ảnh nền tuỳ chọn
+- [ ] Gõ tắt (ví dụ `ko` → *không*)
+- [ ] Vẽ dấu bằng cử chỉ
 
 ## Nhật ký thay đổi
+
+**0.2.0** (chưa phát hành, chưa build) – thêm 10 theme (Neon, Kẹo ngọt, Trà xanh, Phố cổ Hội An, Vịnh Hạ Long,
+Sen hồng, Đồng lúa, Tết, Trung thu, Giáng sinh), chia theme thành nhóm, 4 kiểu phím (phẳng, phím nổi, bo tròn,
+viền mảnh), theme bằng ảnh của bạn.
 
 **0.1.0** (29/10/2026) – bản đầu tiên: bộ gõ Telex/VNI, bàn phím QWERTY và ký hiệu, 12 theme, chế độ một tay,
 rung và âm thanh, màn hình cài đặt.

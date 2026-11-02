@@ -3,6 +3,8 @@ package com.dhtoan.dokey.ime
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.inputmethodservice.InputMethodService
 import android.media.AudioManager
 import android.os.Build
@@ -20,6 +22,7 @@ import com.dhtoan.dokey.DokeySettings
 import com.dhtoan.dokey.engine.TypingMethod
 import com.dhtoan.dokey.engine.VietEngine
 import com.dhtoan.dokey.settings.SettingsActivity
+import java.io.File
 
 class DokeyIme : InputMethodService(), KeyboardView.Listener {
 
@@ -33,6 +36,8 @@ class DokeyIme : InputMethodService(), KeyboardView.Listener {
     /** Fields where Vietnamese transforms would get in the way (passwords, e-mail, URLs, numbers). */
     private var plainField = false
     private var lastWasSpace = false
+    private var photo: Bitmap? = null
+    private var photoVersion = -1L
 
     private val prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ -> applySettings() }
 
@@ -132,7 +137,21 @@ class DokeyIme : InputMethodService(), KeyboardView.Listener {
             borders = settings.keyBorders,
             preview = settings.keyPreview,
             oneHand = settings.oneHand,
+            keyStyle = KeyStyle.of(settings.keyStyle),
+            photo = if (settings.theme == Themes.PHOTO) loadPhoto() else null,
+            photoDim = settings.photoDim,
         )
+    }
+
+    /** The saved background photo, decoded once per new picture. */
+    private fun loadPhoto(): Bitmap? {
+        val version = settings.photoVersion
+        if (version != photoVersion) {
+            photoVersion = version
+            val file = File(filesDir, DokeySettings.PHOTO_FILE)
+            photo = if (file.exists()) BitmapFactory.decodeFile(file.path) else null
+        }
+        return photo
     }
 
     private fun refreshView() = applySettings()

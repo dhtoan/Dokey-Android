@@ -5,13 +5,19 @@ package com.dhtoan.dokey.settings
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -56,6 +62,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,14 +72,24 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import com.dhtoan.dokey.BuildConfig
 import com.dhtoan.dokey.DokeySettings
+import com.dhtoan.dokey.ime.KeyStyle
 import com.dhtoan.dokey.ime.KeyboardTheme
 import com.dhtoan.dokey.ime.Themes
+import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SettingsActivity : ComponentActivity() {
     private val tick = mutableIntStateOf(0)
@@ -153,6 +170,33 @@ private fun SettingsScreen(tick: Int) {
     val autoCap = boolPref(p, DokeySettings.AUTO_CAP, true)
     val doubleSpace = boolPref(p, DokeySettings.DOUBLE_SPACE, true)
     val theme = stringPref(p, DokeySettings.THEME, DokeySettings.defaultTheme)
+    val keyStyle = stringPref(p, DokeySettings.KEY_STYLE, "flat")
+    val photoDim = intPref(p, DokeySettings.PHOTO_DIM, 35)
+    val photoFile = remember { File(context.filesDir, DokeySettings.PHOTO_FILE) }
+    var photoTick by remember { mutableIntStateOf(0) }
+    val photoThumb = remember(photoTick) {
+        if (photoFile.exists()) {
+            BitmapFactory.decodeFile(photoFile.path, BitmapFactory.Options().apply { inSampleSize = 4 })?.asImageBitmap()
+        } else {
+            null
+        }
+    }
+    val scope = rememberCoroutineScope()
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            scope.launch {
+                val ok = withContext(Dispatchers.IO) { runCatching { PhotoStore.save(context, uri, photoFile) }.getOrDefault(false) }
+                if (ok) {
+                    p.edit { putLong(DokeySettings.PHOTO_VERSION, System.currentTimeMillis()) }
+                    photoTick++
+                    theme.value = Themes.PHOTO
+                } else {
+                    Toast.makeText(context, "Không đọc được ảnh này", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+    val pickPhoto = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
     val keyHeight = stringPref(p, DokeySettings.KEY_HEIGHT, "medium")
     val borders = boolPref(p, DokeySettings.KEY_BORDERS, true)
     val preview = boolPref(p, DokeySettings.KEY_PREVIEW, true)
@@ -208,7 +252,31 @@ private fun SettingsScreen(tick: Int) {
             item {
                 Section("Giao diện") {
                     Text("Chủ đề", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(16.dp, 8.dp))
-                    ThemeGallery(theme.value) { theme.value = it }
+                    ThemeGallery(theme.value, KeyStyle.of(keyStyle.value), photoThumb, pickPhoto) { theme.value = it }
+                    if (theme.value == Themes.PHOTO) {
+                        Row(
+                            Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            OutlinedButton(onClick = pickPhoto) { Text("Chọn ảnh khác") }
+                        }
+                        Text(
+                            "Làm tối ảnh: ${photoDim.value}%", style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                        )
+                        Slider(
+                            value = photoDim.value.toFloat(),
+                            onValueChange = { photoDim.value = it.toInt() },
+                            valueRange = 0f..80f,
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                        )
+                    }
+                    Text("Kiểu phím", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 4.dp))
+                    Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        for ((id, label) in listOf("flat" to "Phẳng", "raised" to "Phím nổi", "round" to "Bo tròn", "outline" to "Viền mảnh")) {
+                            FilterChip(keyStyle.value == id, { keyStyle.value = id }, label = { Text(label) })
+                        }
+                    }
                     Text("Chiều cao phím", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 4.dp))
                     Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         for ((id, label) in listOf("small" to "Thấp", "medium" to "Vừa", "large" to "Cao")) {
@@ -307,66 +375,112 @@ private fun SetupStep(title: String, done: Boolean, action: String, onClick: () 
 }
 
 @Composable
-private fun ThemeGallery(selected: String, onSelect: (String) -> Unit) {
+private fun ThemeGallery(
+    selected: String,
+    style: KeyStyle,
+    photo: ImageBitmap?,
+    onPickPhoto: () -> Unit,
+    onSelect: (String) -> Unit,
+) {
     val context = LocalContext.current
-    val entries = buildList {
-        if (Build.VERSION.SDK_INT >= 31) add(Themes.MATERIAL_YOU to "Material You")
-        add(Themes.SYSTEM to "Theo hệ thống")
-        Themes.PRESETS.forEach { add(it.id to it.name) }
+    for ((group, title) in Themes.GROUPS) {
+        val entries = buildList {
+            if (group == "basic") {
+                if (Build.VERSION.SDK_INT >= 31) add(Themes.MATERIAL_YOU to "Material You")
+                add(Themes.SYSTEM to "Theo hệ thống")
+            }
+            Themes.PRESETS.filter { it.group == group }.forEach { add(it.id to it.name) }
+        }
+        Text(
+            title, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 6.dp),
+        )
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            items(entries, key = { it.first }) { (id, name) ->
+                val t = remember(id) { Themes.resolve(context, id) }
+                ThemeTile(name, id == selected, { onSelect(id) }) { ThemePreview(t, style) }
+            }
+        }
     }
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        items(entries, key = { it.first }) { (id, name) ->
-            val t = remember(id) { Themes.resolve(context, id) }
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.clickable { onSelect(id) },
-            ) {
-                ThemePreview(t, id == selected)
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    name, style = MaterialTheme.typography.labelMedium,
-                    fontWeight = if (id == selected) FontWeight.Bold else FontWeight.Normal,
-                )
+    Text(
+        "Ảnh của bạn", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 6.dp),
+    )
+    Row(Modifier.padding(horizontal = 16.dp)) {
+        ThemeTile(
+            if (photo == null) "Chọn ảnh" else "Ảnh nền",
+            selected == Themes.PHOTO,
+            { if (photo == null) onPickPhoto() else onSelect(Themes.PHOTO) },
+        ) {
+            if (photo == null) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("+", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary)
+                }
+            } else {
+                Image(photo, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                ThemePreview(Themes.PHOTO_THEME, style, transparent = true)
             }
         }
     }
 }
 
-/** A miniature keyboard in the theme's colours. */
 @Composable
-private fun ThemePreview(t: KeyboardTheme, selected: Boolean) {
+private fun ThemeTile(name: String, selected: Boolean, onClick: () -> Unit, content: @Composable () -> Unit) {
     val shape = RoundedCornerShape(12.dp)
     val ring = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
-    Box(
-        Modifier
-            .width(112.dp)
-            .height(76.dp)
-            .clip(shape)
-            .border(if (selected) 3.dp else 1.dp, ring, shape),
-    ) {
-        Canvas(Modifier.fillMaxSize()) {
-            drawRect(Brush.linearGradient(listOf(Color(t.bgTop), Color(t.bgBottom))))
-            val pad = 6.dp.toPx()
-            val gap = 3.dp.toPx()
-            val rows = 3
-            val keyH = (size.height - pad * 2 - gap * (rows - 1)) / rows
-            val r = CornerRadius(3.dp.toPx())
-            for (row in 0 until rows) {
-                val y = pad + row * (keyH + gap)
-                if (row == rows - 1) {
-                    val unit = (size.width - pad * 2) / 10
-                    drawRoundRect(Color(t.keyFn), Offset(pad, y), Size(unit * 2 - gap, keyH), r)
-                    drawRoundRect(Color(t.key), Offset(pad + unit * 2, y), Size(unit * 6 - gap, keyH), r)
-                    drawRoundRect(Color(t.accent), Offset(pad + unit * 8, y), Size(unit * 2, keyH), r)
-                } else {
-                    val n = 6
-                    val w = (size.width - pad * 2 - gap * (n - 1)) / n
-                    for (i in 0 until n) drawRoundRect(Color(t.key), Offset(pad + i * (w + gap), y), Size(w, keyH), r)
-                }
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable(onClick = onClick)) {
+        Box(
+            Modifier
+                .width(112.dp)
+                .height(76.dp)
+                .clip(shape)
+                .border(if (selected) 3.dp else 1.dp, ring, shape),
+        ) { content() }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            name, style = MaterialTheme.typography.labelMedium,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+        )
+    }
+}
+
+/** A miniature keyboard in the theme's colours and the chosen key style. */
+@Composable
+private fun ThemePreview(t: KeyboardTheme, style: KeyStyle, transparent: Boolean = false) {
+    Canvas(Modifier.fillMaxSize()) {
+        if (!transparent) drawRect(Brush.linearGradient(listOf(Color(t.bgTop), Color(t.bgBottom))))
+        val pad = 6.dp.toPx()
+        val gap = 3.dp.toPx()
+        val rows = 3
+        val keyH = (size.height - pad * 2 - gap * (rows - 1)) / rows
+        for (row in 0 until rows) {
+            val y = pad + row * (keyH + gap)
+            if (row == rows - 1) {
+                val unit = (size.width - pad * 2) / 10
+                miniKey(t, style, t.keyFn, Offset(pad, y), Size(unit * 2 - gap, keyH))
+                miniKey(t, style, t.key, Offset(pad + unit * 2, y), Size(unit * 6 - gap, keyH))
+                miniKey(t, style, t.accent, Offset(pad + unit * 8, y), Size(unit * 2, keyH), solid = true)
+            } else {
+                val n = 6
+                val w = (size.width - pad * 2 - gap * (n - 1)) / n
+                for (i in 0 until n) miniKey(t, style, t.key, Offset(pad + i * (w + gap), y), Size(w, keyH))
             }
         }
+    }
+}
+
+private fun DrawScope.miniKey(t: KeyboardTheme, style: KeyStyle, color: Int, at: Offset, size: Size, solid: Boolean = false) {
+    val r = CornerRadius(if (style == KeyStyle.ROUND) size.height / 2 else 3.dp.toPx())
+    when {
+        style == KeyStyle.OUTLINE && !solid ->
+            drawRoundRect(Color(t.text).copy(alpha = 0.35f), at, size, r, style = Stroke(1.dp.toPx()))
+        style == KeyStyle.RAISED -> {
+            drawRoundRect(Color.Black.copy(alpha = if (t.dark) 0.45f else 0.2f), at.copy(y = at.y + 1.5.dp.toPx()), size, r)
+            drawRoundRect(Color(color), at, size, r)
+        }
+        else -> drawRoundRect(Color(color), at, size, r)
     }
 }
