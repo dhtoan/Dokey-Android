@@ -33,6 +33,23 @@ class VietEngine(
         forceLiteral = false
     }
 
+    /** Replaces the current word with [word], e.g. a suggestion or a swiped word. */
+    fun setWord(word: String) {
+        reset()
+        if (word.isEmpty()) return
+        raw.append(word)
+        rebuild()
+    }
+
+    /** Puts [tone] (1 sắc … 5 nặng, 0 none) on the current word. Returns false if nothing changed. */
+    fun applyTone(tone: Int): Boolean {
+        if (raw.isEmpty()) return false
+        val toned = VietText.withTone(composing, tone, modernTone)
+        if (toned == composing) return false
+        setWord(toned)
+        return true
+    }
+
     /** True if [c] continues the current word (letters, and VNI digits after a letter). */
     fun accepts(c: Char): Boolean {
         val l = c.lowercaseChar()

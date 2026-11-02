@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.core.content.edit
+import com.dhtoan.dokey.engine.Abbreviations
 import com.dhtoan.dokey.engine.TypingMethod
 import com.dhtoan.dokey.ime.Themes
 
@@ -39,6 +40,13 @@ class DokeySettings(context: Context) {
         get() = prefs.getString(ONE_HAND, "off") ?: "off"
         set(v) = prefs.edit { putString(ONE_HAND, v) }
 
+    val suggestions get() = prefs.getBoolean(SUGGESTIONS, true)
+    val swipeTyping get() = prefs.getBoolean(SWIPE, true)
+    val toneGestures get() = prefs.getBoolean(TONE_GESTURES, true)
+    val abbreviations get() = prefs.getBoolean(ABBREVIATIONS, true)
+    val abbreviationText: String get() = prefs.getString(ABBREVIATION_TEXT, null) ?: Abbreviations.DEFAULT
+    val clipboardHistory get() = prefs.getBoolean(CLIPBOARD_HISTORY, true)
+
     val vibrate get() = prefs.getBoolean(VIBRATE, true)
     val vibrateMs get() = prefs.getInt(VIBRATE_MS, 12)
     val sound get() = prefs.getBoolean(SOUND, false)
@@ -62,6 +70,14 @@ class DokeySettings(context: Context) {
         const val PHOTO_FILE = "keyboard_photo.jpg"
         const val NUMBER_ROW = "number_row"
         const val ONE_HAND = "one_hand"
+        const val SUGGESTIONS = "suggestions"
+        const val SWIPE = "swipe_typing"
+        const val TONE_GESTURES = "tone_gestures"
+        const val ABBREVIATIONS = "abbreviations"
+        const val ABBREVIATION_TEXT = "abbreviation_text"
+        const val CLIPBOARD_HISTORY = "clipboard_history"
+        /** Typing data that is not a setting (clipboard, recent emoji), kept apart from the settings. */
+        const val STATE_NAME = "dokey_state"
         const val VIBRATE = "vibrate"
         const val VIBRATE_MS = "vibrate_ms"
         const val SOUND = "sound"

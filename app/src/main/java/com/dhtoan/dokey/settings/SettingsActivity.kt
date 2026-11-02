@@ -83,6 +83,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import com.dhtoan.dokey.BuildConfig
 import com.dhtoan.dokey.DokeySettings
+import com.dhtoan.dokey.engine.Abbreviations
 import com.dhtoan.dokey.ime.KeyStyle
 import com.dhtoan.dokey.ime.KeyboardTheme
 import com.dhtoan.dokey.ime.Themes
@@ -205,6 +206,12 @@ private fun SettingsScreen(tick: Int) {
     val vibrate = boolPref(p, DokeySettings.VIBRATE, true)
     val vibrateMs = intPref(p, DokeySettings.VIBRATE_MS, 12)
     val sound = boolPref(p, DokeySettings.SOUND, false)
+    val suggest = boolPref(p, DokeySettings.SUGGESTIONS, true)
+    val swipe = boolPref(p, DokeySettings.SWIPE, true)
+    val toneGestures = boolPref(p, DokeySettings.TONE_GESTURES, true)
+    val abbrevOn = boolPref(p, DokeySettings.ABBREVIATIONS, true)
+    val abbrevText = stringPref(p, DokeySettings.ABBREVIATION_TEXT, Abbreviations.DEFAULT)
+    val clipHistory = boolPref(p, DokeySettings.CLIPBOARD_HISTORY, true)
     var testText by remember { mutableStateOf("") }
 
     Scaffold(topBar = { TopAppBar(title = { Text("Dokey", fontWeight = FontWeight.SemiBold) }) }) { inner ->
@@ -292,6 +299,42 @@ private fun SettingsScreen(tick: Int) {
                     SwitchRow("Viền phím", null, borders.value) { borders.value = it }
                     SwitchRow("Phóng to phím khi nhấn", null, preview.value) { preview.value = it }
                     SwitchRow("Hàng số", "Nên bật khi gõ VNI", numberRow.value) { numberRow.value = it }
+                }
+            }
+
+            item {
+                Section("Gợi ý và cử chỉ") {
+                    SwitchRow(
+                        "Gợi ý từ", "Gõ không dấu vẫn được gợi ý có dấu (duoc → được), đoán chữ tiếp theo",
+                        suggest.value,
+                    ) { suggest.value = it }
+                    SwitchRow("Gõ vuốt", "Vuốt qua các chữ cái của một tiếng, nhấc tay để chèn", swipe.value) {
+                        swipe.value = it
+                    }
+                    SwitchRow(
+                        "Vẽ dấu trên phím cách",
+                        "Vuốt lên từ phím cách: chéo phải sắc, chéo trái huyền, thẳng lên hỏi, " +
+                            "lượn sóng ngã, lên rồi xuống nặng",
+                        toneGestures.value,
+                    ) { toneGestures.value = it }
+                    SwitchRow("Gõ tắt", "Gõ chữ tắt rồi dấu cách để mở rộng", abbrevOn.value) { abbrevOn.value = it }
+                    if (abbrevOn.value) {
+                        OutlinedTextField(
+                            value = abbrevText.value,
+                            onValueChange = { abbrevText.value = it },
+                            label = { Text("Mỗi dòng một mục: chữ tắt=chữ đầy đủ") },
+                            minLines = 4,
+                            maxLines = 10,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                        )
+                    }
+                    SwitchRow(
+                        "Lưu bộ nhớ tạm", "Giữ 25 mục sao chép gần nhất trên máy, không gửi đi đâu", clipHistory.value,
+                    ) { v ->
+                        clipHistory.value = v
+                        if (!v) context.getSharedPreferences(DokeySettings.STATE_NAME, Context.MODE_PRIVATE)
+                            .edit { remove("clipboard_items") }
+                    }
                 }
             }
 

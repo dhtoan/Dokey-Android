@@ -125,4 +125,21 @@ object Icons {
         c.drawLine(cx - d, cy + d, cx - d * 0.25f, cy + d, p)
         c.drawLine(cx - d, cy + d, cx - d, cy + d * 0.25f, p)
     }
+
+    fun smiley(c: Canvas, cx: Float, cy: Float, s: Float, p: Paint) {
+        c.drawCircle(cx, cy, s * 0.4f, p)
+        val style = p.style
+        p.style = Paint.Style.FILL
+        c.drawCircle(cx - s * 0.14f, cy - s * 0.1f, s * 0.045f, p)
+        c.drawCircle(cx + s * 0.14f, cy - s * 0.1f, s * 0.045f, p)
+        p.style = style
+        c.drawArc(cx - s * 0.22f, cy - s * 0.12f, cx + s * 0.22f, cy + s * 0.24f, 20f, 140f, false, p)
+    }
+
+    fun clipboard(c: Canvas, cx: Float, cy: Float, s: Float, p: Paint) {
+        c.drawRoundRect(cx - s * 0.3f, cy - s * 0.34f, cx + s * 0.3f, cy + s * 0.42f, s * 0.07f, s * 0.07f, p)
+        c.drawRoundRect(cx - s * 0.14f, cy - s * 0.44f, cx + s * 0.14f, cy - s * 0.26f, s * 0.05f, s * 0.05f, p)
+        c.drawLine(cx - s * 0.16f, cy - s * 0.04f, cx + s * 0.16f, cy - s * 0.04f, p)
+        c.drawLine(cx - s * 0.16f, cy + s * 0.14f, cx + s * 0.1f, cy + s * 0.14f, p)
+    }
 }

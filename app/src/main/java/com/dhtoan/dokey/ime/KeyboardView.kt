@@ -7,11 +7,14 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.Typeface
 import android.os.Handler
+import android.text.TextPaint
+import android.text.TextUtils
 import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
@@ -24,7 +27,7 @@ enum class Shift { OFF, ONCE, LOCKED }
 
 enum class EnterKind { NEWLINE, SEARCH, SEND, GO, NEXT, DONE }
 
-enum class ToolbarAction { LANGUAGE, ONE_HAND, SETTINGS, HIDE, SWAP_SIDE, EXPAND }
+enum class ToolbarAction { LANGUAGE, EMOJI, CLIPBOARD, ONE_HAND, SETTINGS, HIDE, SWAP_SIDE, EXPAND }
 
 data class KeyboardState(
     val layout: Layout = Layouts.alpha(false),
@@ -43,6 +46,10 @@ data class KeyboardState(
     val photo: Bitmap? = null,
     /** 0–100: how much the photo is darkened so the keys stay readable. */
     val photoDim: Int = 35,
+    /** Shown in place of the toolbar while not empty; the first one is the best guess. */
+    val suggestions: List<String> = emptyList(),
+    val swipeTyping: Boolean = true,
+    val toneGestures: Boolean = true,
 )
 
 enum class KeyStyle(val id: String) {
@@ -71,11 +78,16 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
         fun onCursorMove(steps: Int)
         fun onSpaceLongPress()
         fun onToolbar(action: ToolbarAction)
+        fun onSuggestion(index: Int)
+        /** A swipe over letter keys; [keys] are the letters passed, in order. */
+        fun onSwipe(keys: String)
+        /** A tone drawn upwards from the space bar: 1 sắc … 5 nặng. */
+        fun onToneGesture(tone: Int)
     }
 
     private class KeyRect(val key: Key, val rect: RectF, val hit: RectF)
 
-    private enum class Mode { NORMAL, ALTS, CURSOR, CONSUMED, TOOLBAR }
+    private enum class Mode { NORMAL, ALTS, CURSOR, CONSUMED, TOOLBAR, SUGGESTION, SWIPE, TONE }
 
     var state = KeyboardState()
         set(value) {
@@ -99,10 +111,11 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
 
     private val keys = ArrayList<KeyRect>()
     private val toolbarItems = ArrayList<Pair<ToolbarAction, RectF>>()
+    private val suggestionRects = ArrayList<RectF>()
     private var rectsDirty = true
 
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val text = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
+    private val text = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
     private val outline = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = dp(1.2f)
@@ -126,6 +139,11 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
     private var mode = Mode.NORMAL
     private var toolbarHit: ToolbarAction? = null
     private var downX = 0f
+    private var downY = 0f
+    private var suggestionHit = -1
+    private val swipeKeys = StringBuilder()
+    private val trail = ArrayList<Float>()
+    private val trailPath = Path()
     private var cursorX = 0f
     private var alts: List<String> = emptyList()
     private val altRect = RectF()
@@ -202,12 +220,22 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
 
         toolbarItems.clear()
         val w = width.toFloat()
-        val item = dp(48f)
-        toolbarItems += ToolbarAction.LANGUAGE to RectF(dp(8f), 0f, dp(8f) + dp(132f), toolbarH)
-        var x = w - dp(4f)
-        for (a in listOf(ToolbarAction.HIDE, ToolbarAction.SETTINGS, ToolbarAction.ONE_HAND)) {
-            toolbarItems += a to RectF(x - item, 0f, x, toolbarH)
-            x -= item
+        suggestionRects.clear()
+        if (state.suggestions.isNotEmpty()) {
+            val n = state.suggestions.size
+            val cell = (w - dp(8f)) / n
+            for (i in 0 until n) suggestionRects += RectF(dp(4f) + i * cell, 0f, dp(4f) + (i + 1) * cell, toolbarH)
+        } else {
+            val item = dp(44f)
+            toolbarItems += ToolbarAction.LANGUAGE to RectF(dp(8f), 0f, dp(8f) + dp(112f), toolbarH)
+            var x = w - dp(4f)
+            for (a in listOf(
+                ToolbarAction.HIDE, ToolbarAction.SETTINGS, ToolbarAction.ONE_HAND,
+                ToolbarAction.CLIPBOARD, ToolbarAction.EMOJI,
+            )) {
+                toolbarItems += a to RectF(x - item, 0f, x, toolbarH)
+                x -= item
+            }
         }
         if (state.oneHand != "off") {
             val panelLeft = if (state.oneHand == "left") w - w * ONE_HAND_PANEL else 0f
@@ -225,7 +253,9 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
         val t = state.theme
         drawBackground(canvas, t)
         drawToolbar(canvas, t)
+        drawSuggestions(canvas, t)
         for (k in keys) drawKey(canvas, k, t)
+        if (mode == Mode.SWIPE || mode == Mode.TONE) drawTrail(canvas, t)
         val a = active
         if (mode == Mode.ALTS) {
             drawAlts(canvas, t)
@@ -280,7 +310,7 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
                     text.color = if (state.vietnamese) t.onAccent else t.text
                     text.textSize = dp(14f)
                     text.typeface = Typeface.DEFAULT_BOLD
-                    val label = if (state.vietnamese) "VI · ${state.methodLabel}" else "EN · English"
+                    val label = if (state.vietnamese) "VI · ${state.methodLabel}" else "EN"
                     canvas.drawText(label, cx, baseline(cy), text)
                 }
                 else -> {
@@ -290,6 +320,8 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
                     }
                     when (action) {
                         ToolbarAction.HIDE -> Icons.chevronDown(canvas, cx, cy, s, stroke)
+                        ToolbarAction.EMOJI -> Icons.smiley(canvas, cx, cy, s, stroke)
+                        ToolbarAction.CLIPBOARD -> Icons.clipboard(canvas, cx, cy, s, stroke)
                         ToolbarAction.SETTINGS -> Icons.gear(canvas, cx, cy, s, stroke)
                         ToolbarAction.ONE_HAND -> {
                             stroke.color = if (state.oneHand != "off") t.accent else t.textDim
@@ -303,6 +335,46 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
                 }
             }
         }
+    }
+
+    private fun drawSuggestions(canvas: Canvas, t: KeyboardTheme) {
+        if (suggestionRects.isEmpty()) return
+        text.textSize = dp(16f)
+        state.suggestions.forEachIndexed { i, word ->
+            val r = suggestionRects.getOrNull(i) ?: return@forEachIndexed
+            if (mode == Mode.SUGGESTION && suggestionHit == i) {
+                fill.color = t.keyPressed
+                canvas.drawRoundRect(r.left + dp(2f), r.top + dp(5f), r.right - dp(2f), r.bottom - dp(5f), radius, radius, fill)
+            }
+            text.color = t.text
+            text.typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+            val label = TextUtils.ellipsize(word, text, r.width() - dp(12f), TextUtils.TruncateAt.END).toString()
+            canvas.drawText(label, r.centerX(), baseline(r.centerY()), text)
+            if (i > 0) {
+                fill.color = t.textDim
+                fill.alpha = 70
+                canvas.drawRect(r.left, r.top + dp(13f), r.left + dp(1f), r.bottom - dp(13f), fill)
+                fill.alpha = 255
+            }
+        }
+    }
+
+    private fun drawTrail(canvas: Canvas, t: KeyboardTheme) {
+        if (trail.size < 4) return
+        trailPath.reset()
+        trailPath.moveTo(trail[0], trail[1])
+        var i = 2
+        while (i + 1 < trail.size) {
+            trailPath.lineTo(trail[i], trail[i + 1])
+            i += 2
+        }
+        val w = stroke.strokeWidth
+        stroke.strokeWidth = dp(5f)
+        stroke.color = t.accent
+        stroke.alpha = 170
+        canvas.drawPath(trailPath, stroke)
+        stroke.alpha = 255
+        stroke.strokeWidth = w
     }
 
     private fun baseline(cy: Float) = cy - (text.descent() + text.ascent()) / 2
@@ -478,8 +550,18 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
         if (rectsDirty) computeRects()
         activeId = id
         downX = x
+        downY = y
         cursorX = x
         mode = Mode.NORMAL
+        trail.clear()
+        swipeKeys.setLength(0)
+        val sug = suggestionRects.indexOfFirst { it.contains(x, y) }
+        if (sug >= 0) {
+            suggestionHit = sug
+            mode = Mode.SUGGESTION
+            invalidate()
+            return
+        }
         val tool = toolbarAt(x, y)
         val k = if (tool == null) keyAt(x, y) else null
         if (k == null) {
@@ -519,13 +601,41 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
                     cursorX += n * step
                 }
             }
+            Mode.SWIPE, Mode.TONE -> {
+                addTrail(x, y)
+                if (mode == Mode.SWIPE) {
+                    val k = keyAt(x, y)
+                    if (k != null && k.key.isLetter) {
+                        val c = k.key.code.toChar()
+                        if (swipeKeys.isEmpty() || swipeKeys.last() != c) swipeKeys.append(c)
+                    }
+                }
+                invalidate()
+            }
             Mode.NORMAL -> {
                 if (a.key.code == Codes.SPACE) {
-                    if (abs(x - downX) > dp(16f)) {
+                    if (state.toneGestures && downY - y > dp(24f) && abs(x - downX) < (downY - y) * 1.5f) {
+                        handler.removeCallbacks(longPress)
+                        mode = Mode.TONE
+                        addTrail(downX, downY)
+                        addTrail(x, y)
+                        invalidate()
+                        return
+                    }
+                    if (abs(x - downX) > dp(16f) && abs(x - downX) > abs(y - downY)) {
                         handler.removeCallbacks(longPress)
                         mode = Mode.CURSOR
                         cursorX = x
                     }
+                    return
+                }
+                if (state.swipeTyping && a.key.isLetter && hypot(x - downX, y - downY) > maxOf(a.rect.width() * 0.9f, dp(30f))) {
+                    handler.removeCallbacks(longPress)
+                    mode = Mode.SWIPE
+                    swipeKeys.setLength(0)
+                    swipeKeys.append(a.key.code.toChar())
+                    addTrail(downX, downY)
+                    move(x, y)
                     return
                 }
                 if (!a.hit.contains(x, y) && a.key.isChar) {
@@ -539,6 +649,58 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
                 }
             }
             else -> Unit
+        }
+    }
+
+    private fun addTrail(x: Float, y: Float) {
+        trail.add(x)
+        trail.add(y)
+    }
+
+    /**
+     * Reads the tone drawn from the space bar: up-right sắc, up-left huyền, straight up hỏi,
+     * a zigzag ngã, up and back down nặng. Returns 0 if the stroke is not one of these.
+     */
+    private fun classifyTone(): Int {
+        if (trail.size < 4) return 0
+        val sx = trail[0]
+        val sy = trail[1]
+        val ex = trail[trail.size - 2]
+        val ey = trail[trail.size - 1]
+        val min = dp(10f)
+        var minY = sy
+        var turns = 0
+        var dir = 0
+        var anchor = sx
+        var i = 0
+        while (i + 1 < trail.size) {
+            val x = trail[i]
+            minY = minOf(minY, trail[i + 1])
+            when {
+                dir >= 0 && x < anchor - min -> {
+                    if (dir == 1) turns++
+                    dir = -1
+                    anchor = x
+                }
+                dir <= 0 && x > anchor + min -> {
+                    if (dir == -1) turns++
+                    dir = 1
+                    anchor = x
+                }
+                dir == 1 && x > anchor -> anchor = x
+                dir == -1 && x < anchor -> anchor = x
+            }
+            i += 2
+        }
+        val peak = sy - minY
+        if (peak < dp(28f)) return 0
+        if (ey - minY > peak * 0.6f) return 5
+        if (turns >= 2) return 4
+        val dx = ex - sx
+        return when {
+            abs(dx) < peak * 0.45f -> 3
+            dx > 0 -> 1
+            else -> 2
         }
     }
 
@@ -570,6 +732,12 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
         val m = mode
         val tool = toolbarHit
         val alt = alts.getOrNull(altSel)
+        val sug = suggestionHit
+        val swiped = swipeKeys.toString()
+        val tone = if (m == Mode.TONE) classifyTone() else 0
+        suggestionHit = -1
+        swipeKeys.setLength(0)
+        trail.clear()
         activeId = -1
         active = null
         mode = Mode.NORMAL
@@ -581,6 +749,9 @@ class KeyboardView(context: Context, private val listener: Listener) : View(cont
             Mode.NORMAL -> a?.let { listener.onKey(it.key) }
             Mode.ALTS -> alt?.let { listener.onAlt(it) }
             Mode.TOOLBAR -> tool?.let { listener.onToolbar(it) }
+            Mode.SUGGESTION -> if (sug >= 0) listener.onSuggestion(sug)
+            Mode.SWIPE -> if (swiped.length >= 2) listener.onSwipe(swiped) else a?.let { listener.onKey(it.key) }
+            Mode.TONE -> if (tone != 0) listener.onToneGesture(tone)
             else -> Unit
         }
     }
