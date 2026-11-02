@@ -10,6 +10,7 @@
 ![Phiên bản](https://img.shields.io/badge/phiên_bản-0.2.0-1E6FE8)
 ![Android](https://img.shields.io/badge/Android-7.0%2B-3DDC84?logo=android&logoColor=white)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.0-7F52FF?logo=kotlin&logoColor=white)
+![Bản quyền](https://img.shields.io/badge/bản_quyền-mọi_quyền_được_bảo_lưu-555)
 ![Quyền](https://img.shields.io/badge/quyền_Internet-không-2EA44F)
 ![Trạng thái](https://img.shields.io/badge/máy_thật-chưa_thử-F59E0B)
 
@@ -285,4 +286,6 @@ Status: early (0.2.0), not yet tested on a real device.
 
 ## Giấy phép
 
-Chưa chọn giấy phép; mọi quyền thuộc về tác giả.
+Bản quyền © 2026 David Do. **Mọi quyền được bảo lưu.** Nghiêm cấm sao chép, sửa đổi, phân phối hoặc phát hành
+lại Dokey dưới mọi hình thức khi chưa có sự đồng ý bằng văn bản của tác giả. Bạn được tải bản phát hành chính
+thức về cài và dùng cho cá nhân. Xem [LICENSE](LICENSE).
