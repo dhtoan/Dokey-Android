@@ -7,7 +7,7 @@
 **Gõ tiếng Việt Telex, VNI · 22 theme · Material You · không cần Internet**
 
 
-![Phiên bản](https://img.shields.io/badge/phiên_bản-0.2.0-1E6FE8)
+![Phiên bản](https://img.shields.io/badge/phiên_bản-0.3.0-1E6FE8)
 ![Android](https://img.shields.io/badge/Android-7.0%2B-3DDC84?logo=android&logoColor=white)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.0-7F52FF?logo=kotlin&logoColor=white)
 ![Bản quyền](https://img.shields.io/badge/bản_quyền-mọi_quyền_được_bảo_lưu-555)
@@ -37,7 +37,7 @@
 ## Trạng thái
 
 > [!IMPORTANT]
-> **Dokey 0.2.0 chưa được thử trên điện thoại thật.** Nếu gặp lỗi, hãy ghi lại ứng dụng đang
+> **Dokey 0.3.0 chưa được thử trên điện thoại thật.** Nếu gặp lỗi, hãy ghi lại ứng dụng đang
 > dùng và các phím đã gõ.
 
 | Phần | Đã kiểm chứng bằng |
@@ -46,7 +46,9 @@
 | Build APK | Build thành công; APK đính kèm ở mỗi bản phát hành |
 | Màn hình cài đặt | Mở và hiển thị được trên trình giả lập Android 14 |
 | Bàn phím: vẽ phím, chạm, rung, theme, một tay | **Chưa kiểm chứng** – chưa ai cài và gõ thử |
-| Theme mới, kiểu phím, ảnh nền (0.2) | Biên dịch được, có trong APK 0.2.0; **chưa thử trên máy** |
+| Theme mới, kiểu phím, ảnh nền (0.2) | Biên dịch được, có trong APK; **chưa thử trên máy** |
+| Gợi ý từ, gõ vuốt, gõ tắt (0.3) | Unit test cho từ điển, gợi ý, gõ vuốt, gõ tắt; **chưa thử trên máy** |
+| Vẽ dấu, emoji, bộ nhớ tạm (0.3) | Biên dịch được; **chưa kiểm chứng** cách nhận dạng nét vẽ trên máy thật |
 
 ## Tính năng
 
@@ -65,6 +67,21 @@
 | `hoawcj` | hoặc | `hoa2` | hoà |
 | `khuyur` | khuỷu | `a8n` | ăn |
 | `google` | google | `Covid19` | Covid19 |
+
+### Gợi ý, gõ vuốt và gõ tắt
+- **Gợi ý từ**: gõ không dấu vẫn được gợi ý có dấu (`duoc` → *được*, *dược*), gợi ý tiếng đang gõ dở
+  (`nguo` → *người*) và đoán tiếng tiếp theo (*quy* → *định*). Chạm để chọn.
+- **Gõ vuốt**: vuốt qua các chữ cái của một tiếng (không cần dấu), nhấc tay là Dokey chèn tiếng có dấu phù hợp
+  nhất; các lựa chọn khác hiện trên thanh gợi ý.
+- **Gõ tắt**: `ko` → *không*, `dc` → *được*, `vs` → *với*, `ntn` → *như thế nào*… Tự sửa danh sách trong cài đặt.
+- **Vẽ dấu**: vuốt lên từ phím cách để thêm dấu cho tiếng đang gõ (hoặc tiếng vừa gõ):
+  chéo phải **sắc**, chéo trái **huyền**, thẳng lên **hỏi**, lượn sóng **ngã**, lên rồi xuống **nặng**.
+- **Emoji** theo 9 nhóm, có mục dùng gần đây. **Bộ nhớ tạm** giữ 25 mục sao chép gần nhất, chạm để dán.
+
+Từ điển gợi ý (3.374 tiếng, 20.123 cặp tiếng) được Dokey tự đếm từ văn bản không thuộc diện bảo hộ quyền tác giả:
+văn bản pháp luật Việt Nam, Truyện Kiều, Lục Vân Tiên, Tắt đèn, Hà Nội băm sáu phố phường và Nam Phong tạp chí
+(`scripts/fetch_corpus.py`, `scripts/build_dictionary.py`). Vì văn bản luật chiếm phần lớn, gợi ý còn thiên về
+từ trang trọng.
 
 ### Bàn phím
 - QWERTY, trang số – ký hiệu (có **₫**), trang ký hiệu thứ hai, bàn phím số cho ô số và điện thoại.
@@ -179,12 +196,15 @@ Kiểu phím dùng được với mọi theme (ảnh trên lần lượt là the
 | Vuốt ngang trên phím cách | Di chuyển con trỏ |
 | Giữ phím cách | Đổi sang bàn phím khác |
 | Giữ **Xoá** | Xoá liên tục |
+| Vuốt qua các chữ cái | Gõ vuốt một tiếng |
+| Vuốt lên từ phím cách | Vẽ dấu: ↗ sắc · ↖ huyền · ↑ hỏi · lượn sóng ngã · lên rồi xuống nặng |
+| Chạm 🙂 / 📋 trên thanh công cụ | Mở emoji / bộ nhớ tạm |
 
 ## So với các bàn phím khác
 
-Chỉ so trên những gì Dokey đang có; Gboard và Laban Key có nhiều tính năng mà Dokey chưa có (gợi ý từ, gõ vuốt, emoji).
+Chỉ so trên những gì Dokey đang có; Gboard và Laban Key còn nhiều tính năng mà Dokey chưa có (sticker, giọng nói, GIF).
 
-| | Dokey 0.1 | Gboard | Laban Key |
+| | Dokey 0.3 | Gboard | Laban Key |
 |---|:-:|:-:|:-:|
 | Telex và VNI | ✓ | ✓ | ✓ |
 | Gõ dấu ở bất kỳ đâu trong từ | ✓ | ? | ✓ |
@@ -192,7 +212,8 @@ Chỉ so trên những gì Dokey đang có; Gboard và Laban Key có nhiều tí
 | Theme Material You | ✓ | ✓ | ? |
 | Chế độ một tay | ✓ | ✓ | ? |
 | Không xin quyền Internet | ✓ | – | ? |
-| Gợi ý từ, gõ vuốt, emoji | – | ✓ | ✓ |
+| Gợi ý từ, gõ vuốt, emoji | ✓ | ✓ | ✓ |
+| Vẽ dấu bằng cử chỉ | ✓ | ? | ✓ |
 
 <sub>“?” là chưa kiểm chứng. Thông tin về Gboard và Laban Key lấy từ khảo sát tháng 10/2026
 ([docs/research.md](docs/research.md)) và có thể đã thay đổi.</sub>
@@ -232,15 +253,16 @@ bàn phím iOS phải viết lại bằng Swift.
 - [x] Telex, VNI, gõ dấu tự do, giữ nguyên từ tiếng Anh
 - [x] 12 theme, chế độ một tay, rung, phóng to phím, ký tự phụ
 - [x] 22 theme theo nhóm, 4 kiểu phím, theme ảnh nền (0.2.0)
+- [x] Gợi ý từ, gõ vuốt, gõ tắt, vẽ dấu, emoji, bộ nhớ tạm (0.3.0)
+- [ ] Từ điển gợi ý theo văn nói đời thường
+- [ ] Sticker, nhập bằng giọng nói
 - [ ] Thử trên điện thoại thật (Zalo, Messenger, Chrome)
 - [ ] Bản release ký bằng khoá cố định
-- [ ] Gợi ý từ tiếng Việt
-- [ ] Emoji và bộ nhớ tạm
-- [ ] Gõ vuốt
-- [ ] Gõ tắt (ví dụ `ko` → *không*)
-- [ ] Vẽ dấu bằng cử chỉ
 
 ## Nhật ký thay đổi
+
+**0.3.0** (03/11/2026) – gợi ý từ tiếng Việt (gõ không dấu ra có dấu, đoán tiếng tiếp theo), gõ vuốt, gõ tắt,
+vẽ dấu trên phím cách, bảng emoji, bộ nhớ tạm.
 
 **0.2.0** (03/11/2026) – thêm 10 theme (Neon, Kẹo ngọt, Trà xanh, Phố cổ Hội An, Vịnh Hạ Long,
 Sen hồng, Đồng lúa, Tết, Trung thu, Giáng sinh), chia theme thành nhóm, 4 kiểu phím (phẳng, phím nổi, bo tròn,
@@ -280,9 +302,10 @@ python3 scripts/mockups.py
 Vietnamese typing methods, **Telex** and **VNI**, places tone marks by the spelling rules wherever you type them
 in a word, and leaves English words like *class* or *google* untouched. It comes with 22 themes (including
 Material You and themes inspired by Vietnam and its festivals), 4 key styles, a photo background, one-handed mode,
-haptics and key popups. It works fully offline: the app does not request Internet access.
+haptics and key popups, plus word suggestions (type without marks, get the marked word), swipe typing,
+text shortcuts, tone gestures, emoji and clipboard history. It works fully offline: the app does not request Internet access.
 Written in Kotlin; the typing engine is a standalone Kotlin module with unit tests.
-Status: early (0.2.0), not yet tested on a real device.
+Status: early (0.3.0), not yet tested on a real device.
 
 ## Giấy phép
 
