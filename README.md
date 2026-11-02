@@ -309,6 +309,6 @@ Status: early (0.3.0), not yet tested on a real device.
 
 ## Giấy phép
 
-Bản quyền © 2026 David Do. **Mọi quyền được bảo lưu.** Nghiêm cấm sao chép, sửa đổi, phân phối hoặc phát hành
+Bản quyền © 2026 Do Huy Toan. **Mọi quyền được bảo lưu.** Nghiêm cấm sao chép, sửa đổi, phân phối hoặc phát hành
 lại Dokey dưới mọi hình thức khi chưa có sự đồng ý bằng văn bản của tác giả. Bạn được tải bản phát hành chính
 thức về cài và dùng cho cá nhân. Xem [LICENSE](LICENSE).
