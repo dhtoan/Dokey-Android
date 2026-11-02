@@ -44,7 +44,7 @@ Nguồn tham khảo:
 | **Fleksy** | Trình tạo theme: tự chọn màu nền, màu phím | Không mạnh về gõ vuốt |
 | **JB / JCS** | Bộ gõ tiếng Việt miễn phí dựa trên bàn phím gốc Android | |
 
-Đã đưa vào Dokey 0.2 (chưa build): theme chia nhóm (Cơ bản, Màu sắc, Việt Nam, Lễ hội), theme Tết/Trung thu/Giáng
+Đã đưa vào Dokey 0.2: theme chia nhóm (Cơ bản, Màu sắc, Việt Nam, Lễ hội), theme Tết/Trung thu/Giáng
 sinh, theme cảnh Việt Nam (Hội An, Hạ Long, Sen, Đồng lúa), 4 kiểu phím (phẳng, phím nổi, bo tròn, viền mảnh),
 theme bằng ảnh của người dùng. Để sau: gõ tắt, vẽ dấu, gõ vuốt, sticker.
 

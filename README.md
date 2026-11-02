@@ -42,7 +42,7 @@ Dokey là bàn phím tiếng Việt cho Android, anh em với Dokey trên macOS 
 | Build APK | Build thành công; APK đính kèm ở bản phát hành v0.1.0 |
 | Màn hình cài đặt | Mở và hiển thị được trên trình giả lập Android 14 |
 | Bàn phím: vẽ phím, chạm, rung, theme, một tay | **Chưa kiểm chứng** – chưa ai cài và gõ thử |
-| Theme mới, kiểu phím, ảnh nền (0.2) | **Chưa build** – mã đã viết nhưng chưa biên dịch; APK v0.1.0 chưa có các phần này |
+| Theme mới, kiểu phím, ảnh nền (0.2) | Biên dịch được (build ngày 03/11/2026); **chưa thử trên máy**, chưa có APK phát hành |
 
 ## Tính năng
 
@@ -227,7 +227,7 @@ bàn phím iOS phải viết lại bằng Swift.
 
 - [x] Telex, VNI, gõ dấu tự do, giữ nguyên từ tiếng Anh
 - [x] 12 theme, chế độ một tay, rung, phóng to phím, ký tự phụ
-- [x] 22 theme theo nhóm, 4 kiểu phím, theme ảnh nền (bản 0.2, chưa build)
+- [x] 22 theme theo nhóm, 4 kiểu phím, theme ảnh nền (bản 0.2)
 - [ ] Thử trên điện thoại thật (Zalo, Messenger, Chrome)
 - [ ] Bản release ký bằng khoá cố định
 - [ ] Gợi ý từ tiếng Việt
@@ -238,7 +238,7 @@ bàn phím iOS phải viết lại bằng Swift.
 
 ## Nhật ký thay đổi
 
-**0.2.0** (chưa phát hành, chưa build) – thêm 10 theme (Neon, Kẹo ngọt, Trà xanh, Phố cổ Hội An, Vịnh Hạ Long,
+**0.2.0** (chưa phát hành) – thêm 10 theme (Neon, Kẹo ngọt, Trà xanh, Phố cổ Hội An, Vịnh Hạ Long,
 Sen hồng, Đồng lúa, Tết, Trung thu, Giáng sinh), chia theme thành nhóm, 4 kiểu phím (phẳng, phím nổi, bo tròn,
 viền mảnh), theme bằng ảnh của bạn.
 
