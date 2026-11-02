@@ -1,30 +1,33 @@
 <div align="center">
 
-<img src="docs/mockups/banner.svg" width="100%" alt="Dokey – bàn phím tiếng Việt cho Android">
+<img src="docs/mockups/banner.svg" width="100%" alt="Dokey – bàn phím tiếng Việt cho Android, gõ Telex và VNI">
 
-<br>
+# Dokey – Bàn phím tiếng Việt cho Android
 
-![Phiên bản](https://img.shields.io/badge/phiên_bản-0.1.0-1E6FE8)
+**Gõ tiếng Việt Telex, VNI · 22 theme · Material You · không cần Internet**
+
+
+![Phiên bản](https://img.shields.io/badge/phiên_bản-0.2.0-1E6FE8)
 ![Android](https://img.shields.io/badge/Android-7.0%2B-3DDC84?logo=android&logoColor=white)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.0-7F52FF?logo=kotlin&logoColor=white)
 ![Quyền](https://img.shields.io/badge/quyền_Internet-không-2EA44F)
 ![Trạng thái](https://img.shields.io/badge/máy_thật-chưa_thử-F59E0B)
 
-**[⬇ Tải Dokey v0.1.0](https://github.com/dhtoan/Dokey-Android/releases/tag/v0.1.0)** ·
+**[⬇ Tải Dokey mới nhất](https://github.com/dhtoan/Dokey-Android/releases/latest)** ·
 [Tính năng](#tính-năng) · [Theme](#22-theme-và-ảnh-nền) · [Cách dùng](#cách-dùng) · [Cài đặt](#cài-đặt) ·
-[Hỏi đáp](#hỏi-đáp)
+[Hỏi đáp](#hỏi-đáp) · [English](#english)
 
 </div>
 
 ---
 
-Dokey là bàn phím tiếng Việt cho Android, anh em với Dokey trên macOS và Windows. Gõ Telex hoặc VNI, đặt dấu
+**Dokey** là bàn phím tiếng Việt (bộ gõ tiếng Việt) cho điện thoại Android, anh em với Dokey trên macOS và Windows. Gõ Telex hoặc VNI, đặt dấu
 đúng chính tả dù gõ dấu ở bất kỳ đâu trong từ, tự nhận ra từ tiếng Anh để không thêm dấu bừa, và có 22 theme,
 4 kiểu phím và theme bằng ảnh của chính bạn. Mọi thứ chạy trên máy: ứng dụng **không xin quyền truy cập Internet**.
 
 <div align="center">
-<img src="docs/mockups/theme-light.svg" width="360" alt="Dokey, theme Sáng">&nbsp;&nbsp;
-<img src="docs/mockups/theme-ocean.svg" width="360" alt="Dokey, theme Đại dương">
+<img src="docs/mockups/theme-light.svg" width="360" alt="Bàn phím tiếng Việt Dokey cho Android, theme Sáng, gõ Telex">&nbsp;&nbsp;
+<img src="docs/mockups/theme-ocean.svg" width="360" alt="Bàn phím tiếng Việt Dokey cho Android, theme Đại dương">
 <br>
 <sub>Ảnh trong trang này là ảnh minh hoạ, vẽ từ đúng bảng màu và bố cục phím trong mã nguồn
 (<code>scripts/mockups.py</code>), không phải ảnh chụp từ điện thoại.</sub>
@@ -33,16 +36,16 @@ Dokey là bàn phím tiếng Việt cho Android, anh em với Dokey trên macOS 
 ## Trạng thái
 
 > [!IMPORTANT]
-> **v0.1.0 là bản đầu tiên và chưa được thử trên điện thoại thật.** Nếu gặp lỗi, hãy ghi lại ứng dụng đang
+> **Dokey 0.2.0 chưa được thử trên điện thoại thật.** Nếu gặp lỗi, hãy ghi lại ứng dụng đang
 > dùng và các phím đã gõ.
 
 | Phần | Đã kiểm chứng bằng |
 |---|---|
 | Bộ gõ Telex/VNI | Unit test (`engine/src/test`), đều qua |
-| Build APK | Build thành công; APK đính kèm ở bản phát hành v0.1.0 |
+| Build APK | Build thành công; APK đính kèm ở mỗi bản phát hành |
 | Màn hình cài đặt | Mở và hiển thị được trên trình giả lập Android 14 |
 | Bàn phím: vẽ phím, chạm, rung, theme, một tay | **Chưa kiểm chứng** – chưa ai cài và gõ thử |
-| Theme mới, kiểu phím, ảnh nền (0.2) | Biên dịch được (build ngày 03/11/2026); **chưa thử trên máy**, chưa có APK phát hành |
+| Theme mới, kiểu phím, ảnh nền (0.2) | Biên dịch được, có trong APK 0.2.0; **chưa thử trên máy** |
 
 ## Tính năng
 
@@ -70,7 +73,7 @@ Dokey là bàn phím tiếng Việt cho Android, anh em với Dokey trên macOS 
 - Thanh công cụ: nút VI/EN, chế độ một tay, cài đặt, ẩn bàn phím.
 
 <div align="center">
-<img src="docs/mockups/one-hand.svg" width="360" alt="Chế độ một tay">
+<img src="docs/mockups/one-hand.svg" width="360" alt="Chế độ gõ một tay trên bàn phím Dokey">
 <br><sub>Chế độ một tay: bàn phím thu về một bên, có nút đổi bên và nút trở lại cỡ đầy đủ.</sub>
 </div>
 
@@ -84,9 +87,9 @@ Ngoài Material You (màu theo hình nền, Android 12+) và Theo hệ thống (
 
 <table>
 <tr>
-<td align="center"><img src="docs/mockups/theme-light.svg" width="250"><br><b>Sáng</b></td>
-<td align="center"><img src="docs/mockups/theme-dark.svg" width="250"><br><b>Tối</b></td>
-<td align="center"><img src="docs/mockups/theme-amoled.svg" width="250"><br><b>Đen AMOLED</b></td>
+<td align="center"><img src="docs/mockups/theme-light.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Sáng"><br><b>Sáng</b></td>
+<td align="center"><img src="docs/mockups/theme-dark.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Tối"><br><b>Tối</b></td>
+<td align="center"><img src="docs/mockups/theme-amoled.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Đen AMOLED"><br><b>Đen AMOLED</b></td>
 </tr>
 </table>
 
@@ -94,22 +97,22 @@ Ngoài Material You (màu theo hình nền, Android 12+) và Theo hệ thống (
 
 <table>
 <tr>
-<td align="center"><img src="docs/mockups/theme-ocean.svg" width="250"><br><b>Đại dương</b></td>
-<td align="center"><img src="docs/mockups/theme-sunset.svg" width="250"><br><b>Hoàng hôn</b></td>
-<td align="center"><img src="docs/mockups/theme-midnight.svg" width="250"><br><b>Đêm sao</b></td>
+<td align="center"><img src="docs/mockups/theme-ocean.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Đại dương"><br><b>Đại dương</b></td>
+<td align="center"><img src="docs/mockups/theme-sunset.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Hoàng hôn"><br><b>Hoàng hôn</b></td>
+<td align="center"><img src="docs/mockups/theme-midnight.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Đêm sao"><br><b>Đêm sao</b></td>
 </tr>
 <tr>
-<td align="center"><img src="docs/mockups/theme-sakura.svg" width="250"><br><b>Hoa anh đào</b></td>
-<td align="center"><img src="docs/mockups/theme-lavender.svg" width="250"><br><b>Oải hương</b></td>
-<td align="center"><img src="docs/mockups/theme-coffee.svg" width="250"><br><b>Cà phê sữa</b></td>
+<td align="center"><img src="docs/mockups/theme-sakura.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Hoa anh đào"><br><b>Hoa anh đào</b></td>
+<td align="center"><img src="docs/mockups/theme-lavender.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Oải hương"><br><b>Oải hương</b></td>
+<td align="center"><img src="docs/mockups/theme-coffee.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Cà phê sữa"><br><b>Cà phê sữa</b></td>
 </tr>
 <tr>
-<td align="center"><img src="docs/mockups/theme-forest.svg" width="250"><br><b>Rừng thông</b></td>
-<td align="center"><img src="docs/mockups/theme-neon.svg" width="250"><br><b>Neon</b></td>
-<td align="center"><img src="docs/mockups/theme-pastel.svg" width="250"><br><b>Kẹo ngọt</b></td>
+<td align="center"><img src="docs/mockups/theme-forest.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Rừng thông"><br><b>Rừng thông</b></td>
+<td align="center"><img src="docs/mockups/theme-neon.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Neon"><br><b>Neon</b></td>
+<td align="center"><img src="docs/mockups/theme-pastel.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Kẹo ngọt"><br><b>Kẹo ngọt</b></td>
 </tr>
 <tr>
-<td align="center"><img src="docs/mockups/theme-matcha.svg" width="250"><br><b>Trà xanh</b></td>
+<td align="center"><img src="docs/mockups/theme-matcha.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Trà xanh"><br><b>Trà xanh</b></td>
 <td></td>
 <td></td>
 </tr>
@@ -121,12 +124,12 @@ Lấy cảm hứng từ những cảnh quen thuộc – chỉ dùng màu, không
 
 <table>
 <tr>
-<td align="center"><img src="docs/mockups/theme-hoi_an.svg" width="250"><br><b>Phố cổ Hội An</b></td>
-<td align="center"><img src="docs/mockups/theme-ha_long.svg" width="250"><br><b>Vịnh Hạ Long</b></td>
-<td align="center"><img src="docs/mockups/theme-sen.svg" width="250"><br><b>Sen hồng</b></td>
+<td align="center"><img src="docs/mockups/theme-hoi_an.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Phố cổ Hội An"><br><b>Phố cổ Hội An</b></td>
+<td align="center"><img src="docs/mockups/theme-ha_long.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Vịnh Hạ Long"><br><b>Vịnh Hạ Long</b></td>
+<td align="center"><img src="docs/mockups/theme-sen.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Sen hồng"><br><b>Sen hồng</b></td>
 </tr>
 <tr>
-<td align="center"><img src="docs/mockups/theme-lua.svg" width="250"><br><b>Đồng lúa</b></td>
+<td align="center"><img src="docs/mockups/theme-lua.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Đồng lúa"><br><b>Đồng lúa</b></td>
 <td></td>
 <td></td>
 </tr>
@@ -136,9 +139,9 @@ Lấy cảm hứng từ những cảnh quen thuộc – chỉ dùng màu, không
 
 <table>
 <tr>
-<td align="center"><img src="docs/mockups/theme-tet.svg" width="250"><br><b>Tết</b></td>
-<td align="center"><img src="docs/mockups/theme-trung_thu.svg" width="250"><br><b>Trung thu</b></td>
-<td align="center"><img src="docs/mockups/theme-giang_sinh.svg" width="250"><br><b>Giáng sinh</b></td>
+<td align="center"><img src="docs/mockups/theme-tet.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Tết"><br><b>Tết</b></td>
+<td align="center"><img src="docs/mockups/theme-trung_thu.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Trung thu"><br><b>Trung thu</b></td>
+<td align="center"><img src="docs/mockups/theme-giang_sinh.svg" width="250" alt="Bàn phím tiếng Việt Dokey, theme Giáng sinh"><br><b>Giáng sinh</b></td>
 </tr>
 </table>
 
@@ -151,12 +154,12 @@ Có thanh **Làm tối ảnh** (0–80%) để chữ trên phím luôn dễ đ�
 
 <table>
 <tr>
-<td align="center"><img src="docs/mockups/style-flat.svg" width="250"><br><b>Phẳng</b></td>
-<td align="center"><img src="docs/mockups/style-raised.svg" width="250"><br><b>Phím nổi</b></td>
+<td align="center"><img src="docs/mockups/style-flat.svg" width="250" alt="Kiểu phím Phẳng trên bàn phím Dokey"><br><b>Phẳng</b></td>
+<td align="center"><img src="docs/mockups/style-raised.svg" width="250" alt="Kiểu phím Phím nổi trên bàn phím Dokey"><br><b>Phím nổi</b></td>
 </tr>
 <tr>
-<td align="center"><img src="docs/mockups/style-round.svg" width="250"><br><b>Bo tròn</b></td>
-<td align="center"><img src="docs/mockups/style-outline.svg" width="250"><br><b>Viền mảnh</b></td>
+<td align="center"><img src="docs/mockups/style-round.svg" width="250" alt="Kiểu phím Bo tròn trên bàn phím Dokey"><br><b>Bo tròn</b></td>
+<td align="center"><img src="docs/mockups/style-outline.svg" width="250" alt="Kiểu phím Viền mảnh trên bàn phím Dokey"><br><b>Viền mảnh</b></td>
 </tr>
 </table>
 
@@ -195,8 +198,8 @@ Chỉ so trên những gì Dokey đang có; Gboard và Laban Key có nhiều tí
 
 ## Cài đặt
 
-1. Mở [bản phát hành v0.1.0](https://github.com/dhtoan/Dokey-Android/releases/tag/v0.1.0) và tải
-   `dokey-android-v0.1.0-debug.apk`.
+1. Mở [bản phát hành mới nhất](https://github.com/dhtoan/Dokey-Android/releases/latest) và tải file
+   `dokey-android-…-debug.apk`.
 2. Cài file APK (Android sẽ hỏi cho phép cài từ nguồn không xác định).
 3. Mở ứng dụng **Dokey** → **Bật Dokey** → **Chọn bàn phím**.
 4. Gõ thử ngay trong ô **Thử bàn phím** ở cuối màn hình cài đặt.
@@ -217,7 +220,7 @@ Bật *Giữ nguyên từ tiếng Anh* trong cài đặt (mặc định đã b�
 Từ hợp lệ trong cả hai ngôn ngữ, như *test* → *tét*, vẫn bị thêm dấu khi đang gõ tiếng Việt.
 
 **Cài bản mới bị báo lỗi chữ ký?**
-v0.1.0 là bản debug, ký bằng khoá tạm. Gỡ bản cũ rồi cài bản mới.
+Các bản hiện tại là bản debug, ký bằng khoá tạm. Gỡ bản cũ rồi cài bản mới.
 
 **Có bản cho iPhone không?**
 Chưa. Bộ gõ được viết bằng Kotlin thuần nên có thể dùng lại cho iOS bằng Kotlin Multiplatform, nhưng giao diện
@@ -227,7 +230,7 @@ bàn phím iOS phải viết lại bằng Swift.
 
 - [x] Telex, VNI, gõ dấu tự do, giữ nguyên từ tiếng Anh
 - [x] 12 theme, chế độ một tay, rung, phóng to phím, ký tự phụ
-- [x] 22 theme theo nhóm, 4 kiểu phím, theme ảnh nền (bản 0.2)
+- [x] 22 theme theo nhóm, 4 kiểu phím, theme ảnh nền (0.2.0)
 - [ ] Thử trên điện thoại thật (Zalo, Messenger, Chrome)
 - [ ] Bản release ký bằng khoá cố định
 - [ ] Gợi ý từ tiếng Việt
@@ -238,7 +241,7 @@ bàn phím iOS phải viết lại bằng Swift.
 
 ## Nhật ký thay đổi
 
-**0.2.0** (chưa phát hành) – thêm 10 theme (Neon, Kẹo ngọt, Trà xanh, Phố cổ Hội An, Vịnh Hạ Long,
+**0.2.0** (03/11/2026) – thêm 10 theme (Neon, Kẹo ngọt, Trà xanh, Phố cổ Hội An, Vịnh Hạ Long,
 Sen hồng, Đồng lúa, Tết, Trung thu, Giáng sinh), chia theme thành nhóm, 4 kiểu phím (phẳng, phím nổi, bo tròn,
 viền mảnh), theme bằng ảnh của bạn.
 
@@ -269,6 +272,16 @@ Vẽ lại ảnh minh hoạ sau khi sửa màu theme:
 ```bash
 python3 scripts/mockups.py
 ```
+
+## English
+
+**Dokey is a Vietnamese keyboard for Android** (a Vietnamese input method / IME). It supports the two common
+Vietnamese typing methods, **Telex** and **VNI**, places tone marks by the spelling rules wherever you type them
+in a word, and leaves English words like *class* or *google* untouched. It comes with 22 themes (including
+Material You and themes inspired by Vietnam and its festivals), 4 key styles, a photo background, one-handed mode,
+haptics and key popups. It works fully offline: the app does not request Internet access.
+Written in Kotlin; the typing engine is a standalone Kotlin module with unit tests.
+Status: early (0.2.0), not yet tested on a real device.
 
 ## Giấy phép
 
